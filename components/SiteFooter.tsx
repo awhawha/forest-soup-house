@@ -1,25 +1,23 @@
-import Link from "next/link";
+import { Button } from "@/components/Button";
 
+/**
+ * Global site footer — appears on every page.
+ * Soft close: "Back to the forest" + "About" as ghost links.
+ */
 export function SiteFooter() {
   return (
     <footer
-      className="border-t border-border-paper bg-paper py-8"
+      className="border-t border-border-paper bg-paper py-sp-8"
       role="contentinfo"
     >
-      <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        <div className="flex flex-col items-center gap-3 text-center text-sm text-wood-muted">
-          <Link
-            href="/"
-            className="text-wood transition-colors hover:text-moss focus:outline-none focus:ring-2 focus:ring-moss/40 focus:ring-offset-2 focus:ring-offset-paper min-h-[44px] inline-flex items-center"
-          >
+      <div className="mx-auto max-w-5xl px-page-px sm:px-page-px-sm">
+        <div className="flex flex-col items-center gap-sp-3 text-center text-sm">
+          <Button variant="ghost" href="/">
             Back to the forest
-          </Link>
-          <Link
-            href="/about"
-            className="transition-colors hover:text-wood focus:outline-none focus:ring-2 focus:ring-moss/40 focus:ring-offset-2 focus:ring-offset-paper min-h-[44px] inline-flex items-center"
-          >
+          </Button>
+          <Button variant="ghost" href="/about">
             About
-          </Link>
+          </Button>
         </div>
       </div>
     </footer>

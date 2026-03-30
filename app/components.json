@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Button/Primary",
+    "label": "Click me",
+    "styles": {
+      "fill": "#4F7A4E",
+      "fillHover": "#36563A",
+      "textColor": "#FFFFFF",
+      "textColorHover": null,
+      "borderColor": null,
+      "paddingTop": 12,
+      "paddingBottom": 12,
+      "paddingLeft": 24,
+      "paddingRight": 24,
+      "minHeight": 44,
+      "borderRadius": 12,
+      "fontSize": 16,
+      "fontWeight": 500,
+      "hasBorder": false
+    }
+  },
+  {
+    "name": "Button/Ghost",
+    "label": "Learn more →",
+    "styles": {
+      "fill": null,
+      "fillHover": null,
+      "textColor": "#736B61",
+      "textColorHover": "#3F372F",
+      "borderColor": null,
+      "paddingTop": 0,
+      "paddingBottom": 0,
+      "paddingLeft": 0,
+      "paddingRight": 0,
+      "minHeight": 44,
+      "borderRadius": 0,
+      "fontSize": 16,
+      "fontWeight": 400,
+      "hasBorder": false
+    }
+  }
+]

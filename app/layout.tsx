@@ -33,7 +33,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      {/*
+        suppressHydrationWarning: browser extensions (e.g. Grammarly) inject
+        attributes like data-gr-ext-installed into <body> at runtime, causing
+        a server/client HTML mismatch. This prop silences that false positive.
+        It only suppresses warnings one level deep — child components are unaffected.
+      */}
       <body
+        suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} antialiased min-h-screen flex flex-col`}
       >
         <SiteHeader />

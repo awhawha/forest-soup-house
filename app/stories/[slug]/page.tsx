@@ -1,32 +1,24 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StoryBody } from "@/components/StoryBody";
 import { CTABanner } from "@/components/CTABanner";
 import { NarrationBlock } from "@/components/NarrationBlock";
+import { Button } from "@/components/Button";
 import { stories } from "@/data/stories";
 import { soupCards } from "@/data/soupCards";
 import { missions } from "@/data/missions";
 
 type PageProps = {
-  params: Promise<{
-    slug: string;
-  }>;
+  params: Promise<{ slug: string }>;
 };
 
 export function generateStaticParams() {
-  return stories.map((story) => ({
-    slug: story.slug,
-  }));
+  return stories.map((story) => ({ slug: story.slug }));
 }
 
 export default async function StoryEpisodePage({ params }: PageProps) {
   const { slug } = await params;
-
   const story = stories.find((entry) => entry.slug === slug);
-
-  if (!story) {
-    notFound();
-  }
+  if (!story) notFound();
 
   const relatedSoup = story.relatedSoupCardSlug
     ? soupCards.find((s) => s.slug === story.relatedSoupCardSlug)
@@ -38,58 +30,58 @@ export default async function StoryEpisodePage({ params }: PageProps) {
 
   return (
     <div className="bg-paper text-wood">
-      <div className="mx-auto max-w-[720px] px-4 pt-6 sm:px-6 sm:pt-8">
+      <div className="mx-auto max-w-[720px] px-page-px pt-sp-6 sm:px-page-px-sm sm:pt-sp-8">
         <NarrationBlock text="Tonight, the Soup House would like to tell a little story." />
       </div>
 
       <StoryBody title={story.title} sections={story.sections} heroImage={story.image} />
 
-      <div className="mx-auto max-w-[720px] px-4 pb-12 sm:px-6 sm:pb-14">
+      <div className="mx-auto max-w-[720px] px-page-px pb-sp-12 sm:px-page-px-sm sm:pb-sp-12">
         <p className="text-base text-wood-muted">The end.</p>
 
         {hasDiscoveries ? (
           <>
-            <div className="mx-auto my-4 h-px max-w-xl bg-border-paper" aria-hidden />
-            <section className="mt-4" aria-label="Where this story leads">
-              <p className="text-sm font-medium text-wood-muted">
-                Where this story leads
-              </p>
+            <div className="mx-auto my-sp-4 h-px max-w-xl bg-border-paper" aria-hidden />
+            <section className="mt-sp-4" aria-label="Where this story leads">
+              <p className="text-sm font-medium text-wood-muted">Where this story leads</p>
 
               {relatedSoup ? (
-                <div className="mt-4 rounded-xl border border-border-paper bg-paper-card/60 px-4 py-3.5">
+                <div className="mt-sp-4 rounded-xl border border-border-paper bg-paper-card/60 px-page-px py-sp-3">
                   <p className="font-medium text-wood">{relatedSoup.name}</p>
-                  <p className="text-xs text-wood-muted mt-0.5">{relatedSoup.mood}</p>
-                  <p className="mt-2 text-sm italic text-wood-muted leading-relaxed">
+                  <p className="text-xs text-wood-muted mt-sp-1">{relatedSoup.mood}</p>
+                  <p className="mt-sp-2 text-sm italic text-wood-muted leading-relaxed">
                     This soup carries a little of the story with it.
                   </p>
-                  <p className="mt-1.5 text-sm text-wood leading-relaxed line-clamp-2">
+                  <p className="mt-sp-1 text-sm text-wood leading-relaxed line-clamp-2">
                     {relatedSoup.description}
                   </p>
-                  <p className="mt-2">
-                    <Link
+                  <div className="mt-sp-2">
+                    <Button
+                      variant="ghost-moss"
+                      size="sm"
                       href={`/soup-cards/${relatedSoup.slug}`}
-                      className="inline-flex min-h-[44px] items-center text-sm text-moss transition-colors hover:text-moss-dark focus:outline-none focus:ring-2 focus:ring-moss/40 focus:ring-offset-2 focus:ring-offset-paper"
                     >
                       View soup card
-                    </Link>
-                  </p>
+                    </Button>
+                  </div>
                 </div>
               ) : null}
 
               {relatedMission ? (
-                <div className={`mt-4 rounded-xl border border-border-paper bg-paper-card/60 px-4 py-3.5`}>
+                <div className="mt-sp-4 rounded-xl border border-border-paper bg-paper-card/60 px-page-px py-sp-3">
                   <p className="font-medium text-wood">{relatedMission.title}</p>
-                  <p className="mt-1 text-sm text-wood-muted leading-relaxed line-clamp-2">
+                  <p className="mt-sp-1 text-sm text-wood-muted leading-relaxed line-clamp-2">
                     {relatedMission.prompt}
                   </p>
-                  <p className="mt-2">
-                    <Link
+                  <div className="mt-sp-2">
+                    <Button
+                      variant="ghost-moss"
+                      size="sm"
                       href={`/missions#${relatedMission.id}`}
-                      className="inline-flex min-h-[44px] items-center text-sm text-moss transition-colors hover:text-moss-dark focus:outline-none focus:ring-2 focus:ring-moss/40 focus:ring-offset-2 focus:ring-offset-paper"
                     >
                       Try a little adventure
-                    </Link>
-                  </p>
+                    </Button>
+                  </div>
                 </div>
               ) : null}
             </section>
@@ -111,4 +103,3 @@ export default async function StoryEpisodePage({ params }: PageProps) {
     </div>
   );
 }
-
