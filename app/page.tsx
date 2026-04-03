@@ -5,24 +5,30 @@ import { adventures } from "@/data/adventure";
 
 const entryPaths = [
   {
-    title: "Explore the forest",
+    title: "Explore the forest · 走進森林",
     href: "/world",
-    description: "Visit the Soup House, the Whisper Shed, and other quiet places.",
+    description:
+      "Visit the Soup House, the Whisper Shed, and other quiet places.",
+    descriptionZh:
+      "去看看湯湯屋、悄悄耳語小屋，還有森林裡其他安靜的小地方。",
   },
   {
-    title: "Meet the forest friends",
+    title: "Meet the forest friends · 認識森林朋友",
     href: "/characters",
     description: "Fina, Poffy, Lilo, and other gentle friends live here.",
+    descriptionZh: "菲娜、波飛、里洛，還有其他溫柔的森林朋友都住在這裡。",
   },
   {
-    title: "Listen to a story",
+    title: "Listen to a story · 聽一個小故事",
     href: "/stories",
     description: "Sit down for a warm little story from the forest.",
+    descriptionZh: "坐下來，聽一個來自森林裡的溫暖小故事。",
   },
   {
-    title: "Find a soup",
+    title: "Find a soup · 找一碗湯",
     href: "/soup-cards",
     description: "Some soups are for tasting. Some are for remembering.",
+    descriptionZh: "有些湯是用來品嚐的，有些湯是用來記住一個時刻的。",
   },
 ];
 
@@ -44,10 +50,16 @@ export default function HomePage() {
           >
             <div className="space-y-2">
               <h2 className="font-heading text-xl font-medium text-wood md:text-2xl">
-                Today’s Little Adventures
+                <span className="block">Today’s Little Adventures</span>
+                <span className="mt-1 block text-lg font-normal text-wood-muted md:text-xl">
+                  今日森林小冒險
+                </span>
               </h2>
               <p className="text-sm leading-7 text-wood-muted md:text-base">
                 Small moments happening in the forest today.
+              </p>
+              <p className="text-sm leading-7 text-wood-muted/90 md:text-base">
+                今天，森林裡有幾個小小的故事正在發生。
               </p>
             </div>
 
@@ -60,27 +72,6 @@ export default function HomePage() {
               ))}
             </div>
           </section>
-
-          {/* 2. World note */}
-          <section
-            className="mt-10 rounded-2xl border border-border-paper bg-paper-card px-4 py-4 sm:px-5 sm:py-5"
-            aria-label="Where you are in the forest"
-          >
-            <p className="text-sm leading-relaxed text-wood">
-              You are near the Soup House.
-            </p>
-            <p className="mt-1 text-sm leading-relaxed text-wood-muted">
-              A quiet place in the forest where soup is a little bit magical.
-            </p>
-            <p className="mt-3 text-xs leading-relaxed text-wood-muted">
-              Path: Soup House → Whisper Shed → story circle → the quiet places
-              where friends gather.
-            </p>
-          </section>
-
-          <div className="my-20 md:my-24">
-            <SectionDivider />
-          </div>
         </div>
       </div>
 
@@ -90,10 +81,16 @@ export default function HomePage() {
           <div className="space-y-5">
             <div className="space-y-2">
               <h2 className="font-heading text-xl font-medium text-wood md:text-2xl">
-                Explore the forest
+                <span className="block">Explore the Forest</span>
+                <span className="mt-1 block text-lg font-normal text-wood-muted md:text-xl">
+                  走進森林
+                </span>
               </h2>
               <p className="text-sm leading-7 text-wood-muted md:text-base">
                 Follow a path into the forest.
+              </p>
+              <p className="text-sm leading-7 text-wood-muted/90 md:text-base">
+                跟著一條小路，慢慢走進森林裡。
               </p>
             </div>
 
@@ -104,6 +101,7 @@ export default function HomePage() {
                   title={path.title}
                   href={path.href}
                   description={path.description}
+                  descriptionZh={path.descriptionZh}
                 />
               ))}
             </div>

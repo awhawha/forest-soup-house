@@ -29,9 +29,9 @@ export default async function CharacterProfilePage({ params }: PageProps) {
       <CharacterProfile character={character} />
       <div className="mx-auto max-w-2xl px-4 pb-10 sm:px-6 sm:pb-12">
         <CTABanner
-          label="Back to forest friends"
+          label="Back to forest friends · 回到森林朋友"
           href="/characters"
-          secondary={{ label: "Return to the Forest Gate", href: "/" }}
+          secondary={{ label: "Explore more · 繼續走進森林", href: "/" }}
         />
       </div>
     </div>

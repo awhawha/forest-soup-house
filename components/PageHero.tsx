@@ -1,6 +1,10 @@
 interface PageHeroProps {
   title: string;
+  /** Traditional Chinese line — second line under English title */
+  titleZh?: string;
   subtitle?: string;
+  /** Traditional Chinese supporting line — optional; use when layout stays light */
+  subtitleZh?: string;
 }
 
 /**
@@ -12,14 +16,22 @@ interface PageHeroProps {
  *   pt-hero-pt / sm:pt-hero-pt-sm → --hero-pt / --hero-pt-sm  (32px / 40px)
  *   pb-hero-pb / sm:pb-hero-pb-sm → --hero-pb / --hero-pb-sm  (24px / 32px)
  */
-export function PageHero({ title, subtitle }: PageHeroProps) {
+export function PageHero({ title, titleZh, subtitle, subtitleZh }: PageHeroProps) {
   return (
     <div className="mx-auto max-w-3xl px-page-px pt-hero-pt pb-hero-pb sm:px-page-px-sm sm:pt-hero-pt-sm sm:pb-hero-pb-sm">
       <h1 className="font-heading text-2xl font-medium text-wood sm:text-3xl">
-        {title}
+        <span className="block">{title}</span>
+        {titleZh ? (
+          <span className="mt-sp-1 block text-xl font-normal text-wood-muted sm:text-2xl">
+            {titleZh}
+          </span>
+        ) : null}
       </h1>
       {subtitle ? (
         <p className="mt-sp-2 text-lg text-wood-muted leading-relaxed">{subtitle}</p>
+      ) : null}
+      {subtitleZh ? (
+        <p className="mt-sp-1 text-base text-wood-muted/90 leading-relaxed">{subtitleZh}</p>
       ) : null}
     </div>
   );

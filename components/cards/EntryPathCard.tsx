@@ -4,6 +4,7 @@ interface EntryPathCardProps {
   title: string;
   href: string;
   description?: string;
+  descriptionZh?: string;
 }
 
 /**
@@ -19,7 +20,7 @@ interface EntryPathCardProps {
  *   sm:py-sp-3   → --sp-3  (12px) desktop v-padding
  *   mt-sp-1      → --sp-1  (4px)  description top margin — aligned from mt-0.5 (2px)
  */
-export function EntryPathCard({ title, href, description }: EntryPathCardProps) {
+export function EntryPathCard({ title, href, description, descriptionZh }: EntryPathCardProps) {
   return (
     <Link
       href={href}
@@ -30,8 +31,13 @@ export function EntryPathCard({ title, href, description }: EntryPathCardProps) 
           {title}
         </span>
         {description ? (
-          <p className="mt-sp-1 text-xs text-wood-muted leading-snug line-clamp-1 sm:line-clamp-none">
+          <p className="mt-sp-1 text-xs text-wood-muted leading-snug line-clamp-2 sm:line-clamp-none">
             {description}
+          </p>
+        ) : null}
+        {descriptionZh ? (
+          <p className="mt-sp-1 text-xs leading-snug text-wood-muted/85 line-clamp-2 sm:line-clamp-none">
+            {descriptionZh}
           </p>
         ) : null}
       </div>

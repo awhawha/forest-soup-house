@@ -50,10 +50,10 @@ export default async function SoupCardDetailPage({ params }: PageProps) {
 
         <div className="mt-banner-mt flex flex-col gap-sp-3 sm:flex-row sm:flex-wrap">
           <Button variant="ghost-moss" href="/soup-cards">
-            Back to soup cards
+            Back to soup cards · 回到湯譜卡
           </Button>
           <Button variant="ghost-moss" href="/missions">
-            Visit the little adventures
+            Explore adventures · 看更多小冒險
           </Button>
         </div>
       </article>

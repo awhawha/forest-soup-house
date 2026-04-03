@@ -37,13 +37,17 @@ export default async function StoryEpisodePage({ params }: PageProps) {
       <StoryBody title={story.title} sections={story.sections} heroImage={story.image} />
 
       <div className="mx-auto max-w-[720px] px-page-px pb-sp-12 sm:px-page-px-sm sm:pb-sp-12">
-        <p className="text-base text-wood-muted">The end.</p>
+        <p className="text-base text-wood-muted">
+          The end. <span className="text-wood-muted/80">結局。</span>
+        </p>
 
         {hasDiscoveries ? (
           <>
             <div className="mx-auto my-sp-4 h-px max-w-xl bg-border-paper" aria-hidden />
             <section className="mt-sp-4" aria-label="Where this story leads">
-              <p className="text-sm font-medium text-wood-muted">Where this story leads</p>
+              <p className="text-sm font-medium text-wood-muted">
+                Where this story leads · 故事往哪裡延伸
+              </p>
 
               {relatedSoup ? (
                 <div className="mt-sp-4 rounded-xl border border-border-paper bg-paper-card/60 px-page-px py-sp-3">
@@ -61,7 +65,7 @@ export default async function StoryEpisodePage({ params }: PageProps) {
                       size="sm"
                       href={`/soup-cards/${relatedSoup.slug}`}
                     >
-                      View soup card
+                      View soup card · 看看湯譜卡
                     </Button>
                   </div>
                 </div>
@@ -79,7 +83,7 @@ export default async function StoryEpisodePage({ params }: PageProps) {
                       size="sm"
                       href={`/missions#${relatedMission.id}`}
                     >
-                      Try a little adventure
+                      Explore adventures · 看更多小冒險
                     </Button>
                   </div>
                 </div>
@@ -87,16 +91,16 @@ export default async function StoryEpisodePage({ params }: PageProps) {
             </section>
 
             <CTABanner
-              label="Back to Story Time"
+              label="Back to Story Time · 回到故事時間"
               href="/stories"
-              secondary={{ label: "Explore the forest", href: "/" }}
+              secondary={{ label: "Explore more · 繼續走進森林", href: "/" }}
             />
           </>
         ) : (
           <CTABanner
-            label="Back to stories"
+            label="Back to stories · 回到故事時間"
             href="/stories"
-            secondary={{ label: "Explore the forest", href: "/" }}
+            secondary={{ label: "Explore more · 繼續走進森林", href: "/" }}
           />
         )}
       </div>

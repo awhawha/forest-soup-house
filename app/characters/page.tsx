@@ -7,7 +7,9 @@ export default function CharactersPage() {
     <div className="min-h-screen bg-paper text-wood">
       <PageHero
         title="Forest Friends"
+        titleZh="森林朋友"
         subtitle="The gentle characters who live in the forest and share soup and stories."
+        subtitleZh="住在森林裡、與你分享湯與故事的溫柔角色們。"
       />
       <div className="mx-auto max-w-3xl px-4 pb-16 sm:px-6 sm:pb-20">
         <ul className="grid gap-6 sm:gap-8" aria-label="Forest friends">
