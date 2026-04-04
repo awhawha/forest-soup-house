@@ -44,7 +44,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} antialiased min-h-screen flex flex-col`}
       >
         <SiteHeader />
-        <main className="flex-1">{children}</main>
+        <main className="box-border min-h-0 flex-1 bg-paper pt-[var(--site-header-offset)]">
+          {children}
+        </main>
         <SiteFooter />
       </body>
     </html>

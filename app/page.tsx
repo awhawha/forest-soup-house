@@ -43,21 +43,21 @@ export default function HomePage() {
     <div className="bg-paper text-wood">
       <section
         aria-label="Welcome"
-        className="relative isolate w-full min-h-[calc(100svh-4rem)]"
+        className="relative isolate w-full min-h-[calc(100svh-var(--site-header-offset))]"
       >
         <div className="absolute inset-0 z-0 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/places/forest-entrance.png"
             alt=""
-            className="h-full min-h-[calc(100svh-4rem)] w-full object-cover object-center opacity-90"
+            className="h-full min-h-[calc(100svh-var(--site-header-offset))] w-full object-cover object-center opacity-90"
           />
         </div>
         <div
           className="pointer-events-none absolute inset-0 z-[1] hero-overlay-warm"
           aria-hidden
         />
-        <div className="relative z-10 flex min-h-[calc(100svh-4rem)] flex-col items-center justify-center px-6 py-16 text-center">
+        <div className="relative z-10 flex min-h-[calc(100svh-var(--site-header-offset))] flex-col items-center justify-center px-6 py-16 text-center">
           <h1 className="font-heading opacity-0 text-4xl font-medium leading-tight text-ink-on-green drop-shadow-md sm:text-5xl md:text-6xl lg:text-7xl animate-fade-in-up">
             日常就是魔法
           </h1>

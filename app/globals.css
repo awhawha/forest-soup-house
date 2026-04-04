@@ -6,6 +6,11 @@
 ------------------------------------------------------------------------- */
 
 :root {
+  /* Bar height ≈ py + max(logo, nav control); + safe-area on header — keep in sync with SiteHeader */
+  --site-header-inner: 4.25rem;
+  --site-header-offset: calc(
+    var(--site-header-inner) + env(safe-area-inset-top, 0px)
+  );
   /* --- Surfaces (adv: --background, --card, --secondary, --muted, mushroom) --- */
   --paper: hsl(45 25% 96%);
   --paper-card: hsl(45 30% 98%);
@@ -186,6 +191,12 @@
   --radius-card: var(--card-radius);
 }
 
+@media (min-width: 640px) {
+  :root {
+    --site-header-inner: 4.75rem;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --paper: hsl(35 15% 18%);
@@ -222,7 +233,12 @@
 ------------------------------------------------------------------------- */
 
 @layer base {
+  html {
+    background-color: var(--paper);
+  }
+
   body {
+    margin: 0;
     background: var(--paper);
     color: var(--wood);
     font-family: var(--font-geist-sans), system-ui, sans-serif;

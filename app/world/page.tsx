@@ -3,7 +3,7 @@ import { locations } from "@/data/locations";
 
 export default function WorldPage() {
   return (
-    <div className="min-h-screen bg-world-page-bg text-wood">
+    <div className="-mt-[var(--site-header-offset)] min-h-screen bg-world-page-bg pt-[var(--site-header-offset)] text-wood">
       <header className="mx-auto max-w-2xl px-page-px pt-hero-pt pb-sp-6 text-center sm:px-page-px-sm sm:pt-hero-pt-sm sm:pb-sp-8">
         <h1 className="font-heading text-2xl font-bold leading-tight text-world-heading sm:text-3xl md:text-4xl">
           選擇你的森林冒險路線
