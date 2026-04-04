@@ -1,45 +1,57 @@
 @import "tailwindcss";
 
 /* -------------------------------------------------------------------------
-   Forest Soup House — Refined paper + forest palette
-   Warm, calm, storybook-like. Use token hierarchy: page → section → card.
+   Forest Soup House — color system aligned with forest-soup-house-adventures
+   (index.css): HSL primitives → semantic tokens. Hierarchy: page → section → card.
 ------------------------------------------------------------------------- */
 
 :root {
-  /* --- Surfaces --- */
-  --paper: #F4F1EA;
-  --paper-section: #ECE7DE;
-  --paper-card: #FBF8F2;
-  --paper-deep: #E6DED2;
+  /* --- Surfaces (adv: --background, --card, --secondary, --muted, mushroom) --- */
+  --paper: hsl(45 25% 96%);
+  --paper-card: hsl(45 30% 98%);
+  --paper-section: hsl(35 35% 88%);
+  --paper-deep: hsl(85 35% 88%);
 
-  /* --- Text --- */
-  --wood: #3F372F;
-  --wood-muted: #736B61;
-  --wood-soft: #8C8377;
-  --ink-on-green: #F7F4EE;
+  /* --- Text (adv: --foreground, --muted-foreground) --- */
+  --wood: hsl(25 15% 25%);
+  --wood-muted: hsl(25 15% 60%);
+  --wood-soft: hsl(25 15% 45%);
+  --ink-on-green: hsl(45 25% 96%);
 
-  /* --- Borders --- */
-  --border-paper: #DAD1C4;
-  --border-card: #CFC6B8;
+  /* --- Borders (adv: --border, --input) --- */
+  --border-paper: hsl(85 25% 85%);
+  --border-card: hsl(85 25% 90%);
 
-  /* --- Forest greens --- */
-  --moss: #4F7A4E;
-  --moss-dark: var(--moss-dark-raw, #36563A);
-  --moss-dark-raw: #36563A;
-  --moss-soft: #7E9F7A;
-  --moss-pale: #DDE7D8;
+  /* --- Greens (adv: --primary, forest-green, sage-green, forest-light) --- */
+  --moss: hsl(120 40% 35%);
+  --moss-dark-raw: hsl(120 50% 32%);
+  --moss-dark: var(--moss-dark-raw);
+  --moss-soft: hsl(100 30% 68%);
+  --moss-pale: hsl(120 35% 78%);
+  --moss-hover: hsl(120 42% 31%);
+  --moss-link-hover: hsl(120 45% 30%);
 
-  /* --- Warm accents --- */
-  --accent-pull: #9A7B58;
-  --accent-amber: #B6865A;
+  /* --- Accents (adv: earth-brown, warm-orange + optional purples) --- */
+  --accent-pull: hsl(25 45% 48%);
+  --accent-amber: hsl(30 70% 55%);
+  --mystical-purple: hsl(275 45% 65%);
+  --warm-orange-light: hsl(30 60% 75%);
 
-  /* --- Gradients (hero / footer only) --- */
+  /* --- Gradients --- */
   --gradient-forest-hero: linear-gradient(180deg, var(--paper) 0%, var(--moss-pale) 100%);
   --gradient-forest-soft: linear-gradient(180deg, var(--moss-pale) 0%, transparent 100%);
   --gradient-forest-footer: linear-gradient(180deg, var(--paper-section) 0%, var(--moss-pale) 100%);
+  --gradient-forest-brand: linear-gradient(
+    135deg,
+    hsl(120 50% 32%) 0%,
+    hsl(100 30% 68%) 100%
+  );
 
-  /* --- Shadow --- */
-  --shadow-paper: 0 1px 2px rgba(63, 55, 47, 0.05), 0 6px 18px rgba(63, 55, 47, 0.06);
+  /* --- Shadow (adv: --shadow-soft + warm earth tone) --- */
+  --shadow-paper:
+    0 1px 2px hsl(25 15% 25% / 0.06),
+    0 6px 18px hsl(120 50% 32% / 0.08);
+  --shadow-warm: 0 8px 25px hsl(25 45% 48% / 0.15);
 
   /* -------------------------------------------------------------------------
      Spacing — 4px base scale
@@ -68,7 +80,7 @@
   --card-padding:     var(--sp-6);
   --card-gap:         var(--sp-4);
   --card-gap-sm:      var(--sp-6);
-  --card-radius:      var(--sp-3);
+  --card-radius:      16px;
 
   /* Semantic — Page layout */
   --page-px:          var(--sp-4);
@@ -87,6 +99,17 @@
   --gap-inline:       var(--sp-4);
   --gap-inline-sm:    var(--sp-6);
   --banner-mt:        var(--sp-10);
+
+  /* World map — carousel reference (cream bg, forest green titles, terracotta CTA, mint icon wells) */
+  --world-page-bg: #f7f7f0;
+  --world-heading: #2d5a27;
+  --world-muted: #6b705c;
+  --world-cta: #a67c52;
+  --world-cta-hover: #8f6844;
+  --world-icon-bg: #e8f0e4;
+  --world-card-bg: #ffffff;
+  --world-nav-btn-bg: #ecece8;
+  --world-nav-btn-border: #dadad4;
 }
 
 @theme inline {
@@ -105,12 +128,21 @@
   --color-border-card: var(--border-card);
   /* Forest greens */
   --color-moss: var(--moss);
-  --color-moss-dark: #36563A;
+  --color-moss-dark: var(--moss-dark);
   --color-moss-soft: var(--moss-soft);
   --color-moss-pale: var(--moss-pale);
-  /* Warm accents */
+  /* Warm & magical accents (adv palette) */
   --color-accent-pull: var(--accent-pull);
   --color-accent-amber: var(--accent-amber);
+  --color-mystical-purple: var(--mystical-purple);
+  --color-warm-orange-light: var(--warm-orange-light);
+  /* World map carousel */
+  --color-world-page-bg: var(--world-page-bg);
+  --color-world-heading: var(--world-heading);
+  --color-world-muted: var(--world-muted);
+  --color-world-cta: var(--world-cta);
+  --color-world-icon-bg: var(--world-icon-bg);
+  --color-world-card-bg: var(--world-card-bg);
   /* Base */
   --color-background: var(--paper);
   --color-foreground: var(--wood);
@@ -156,9 +188,32 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #E8DFD4;
-    --paper-section: #E0D8CC;
-    --wood: #3F372F;
+    --paper: hsl(35 15% 18%);
+    --paper-card: hsl(35 14% 22%);
+    --paper-section: hsl(35 14% 15%);
+    --paper-deep: hsl(85 10% 16%);
+    --wood: hsl(45 22% 92%);
+    --wood-muted: hsl(25 10% 68%);
+    --wood-soft: hsl(25 10% 55%);
+    --border-paper: hsl(85 10% 28%);
+    --border-card: hsl(85 8% 32%);
+    --moss: hsl(120 35% 42%);
+    --moss-dark-raw: hsl(120 38% 30%);
+    --moss-soft: hsl(100 22% 55%);
+    --moss-pale: hsl(120 22% 28%);
+    --moss-hover: hsl(120 38% 38%);
+    --moss-link-hover: hsl(120 40% 42%);
+    --accent-pull: hsl(25 35% 55%);
+    --accent-amber: hsl(30 55% 52%);
+    --world-page-bg: hsl(35 14% 14%);
+    --world-heading: hsl(120 28% 72%);
+    --world-muted: hsl(85 12% 62%);
+    --world-cta: hsl(25 38% 52%);
+    --world-cta-hover: hsl(25 38% 46%);
+    --world-icon-bg: hsl(120 16% 22%);
+    --world-card-bg: hsl(35 12% 18%);
+    --world-nav-btn-bg: hsl(35 10% 22%);
+    --world-nav-btn-border: hsl(35 8% 30%);
   }
 }
 
@@ -185,7 +240,7 @@
     transition: color 0.15s ease;
   }
   a:hover {
-    color: #36563A;
+    color: var(--moss-link-hover);
   }
   a:focus-visible {
     outline: 2px solid var(--moss);
@@ -198,6 +253,65 @@
     height: 1px;
     margin: 2rem auto;
     background: var(--border-paper);
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes float-gentle {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.75s ease-out forwards;
+  }
+
+  .animate-float-gentle {
+    animation: float-gentle 2.5s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in-up,
+    .animate-float-gentle {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Warm sunrise veil over hero photography (sister app: NewHeroSection) */
+  .hero-overlay-warm {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--accent-amber) 22%, transparent) 0%,
+      transparent 42%,
+      color-mix(in srgb, var(--moss-dark) 38%, transparent) 78%,
+      color-mix(in srgb, var(--paper) 82%, transparent) 100%
+    );
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -252,7 +366,7 @@
     color: var(--ink-on-green);
   }
   .btn-primary:hover {
-    background-color: #36563A;
+    background-color: var(--moss-hover);
     color: var(--ink-on-green);
   }
 
@@ -275,7 +389,7 @@
     padding-block: var(--button-py-sm);
   }
   .btn-ghost-moss:hover {
-    color: #36563A;
+    color: var(--moss-link-hover);
   }
 
   .btn-outline {
@@ -285,5 +399,33 @@
   }
   .btn-outline:hover {
     background-color: var(--paper-card);
+  }
+
+  /* World map carousel — terracotta CTA (reference UI) */
+  .btn-world-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    min-height: 44px;
+    border-radius: 12px;
+    padding-inline: var(--sp-5);
+    padding-block: var(--sp-3);
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    background-color: var(--world-cta);
+    color: #fff;
+    text-decoration: none;
+    transition: background-color 150ms ease;
+  }
+  .btn-world-cta:hover {
+    background-color: var(--world-cta-hover);
+    color: #fff;
+  }
+  .btn-world-cta:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--world-card-bg),
+      0 0 0 4px color-mix(in srgb, var(--world-cta) 50%, transparent);
   }
 }

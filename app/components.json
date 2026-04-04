@@ -3,9 +3,9 @@
     "name": "Button/Primary",
     "label": "Click me",
     "styles": {
-      "fill": "#4F7A4E",
-      "fillHover": "#36563A",
-      "textColor": "#FFFFFF",
+      "fill": "#367D36",
+      "fillHover": "#297A29",
+      "textColor": "#F7F6F2",
       "textColorHover": null,
       "borderColor": null,
       "paddingTop": 12,
@@ -25,8 +25,8 @@
     "styles": {
       "fill": null,
       "fillHover": null,
-      "textColor": "#736B61",
-      "textColorHover": "#3F372F",
+      "textColor": "#A8968A",
+      "textColorHover": "#493E36",
       "borderColor": null,
       "paddingTop": 0,
       "paddingBottom": 0,

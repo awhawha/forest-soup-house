@@ -28,7 +28,7 @@ export function CharacterProfile({ character }: CharacterProfileProps) {
       <p className="mt-sp-1 text-wood-muted leading-relaxed">{tagline}</p>
 
       {bio ? (
-        <div className="mt-sp-6 space-y-4 text-[#2C2825] leading-relaxed">
+        <div className="mt-sp-6 space-y-4 text-wood leading-relaxed">
           {bio.split(/\n\n+/).map((paragraph, i) => (
             <p key={i}>{paragraph}</p>
           ))}

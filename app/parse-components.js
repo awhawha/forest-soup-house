@@ -6,18 +6,18 @@ const fs = require("fs");
 
 // ---- 你的 token 對應表（從 globals.css 來的）----
 const TOKEN_MAP = {
-  "bg-moss": { fill: "#4F7A4E" },
-  "bg-moss-dark": { fill: "#36563A" },
-  "bg-paper": { fill: "#F4F1EA" },
-  "bg-paper-card": { fill: "#FBF8F2" },
+  "bg-moss": { fill: "#367D36" },
+  "bg-moss-dark": { fill: "#297A29" },
+  "bg-paper": { fill: "#F7F6F2" },
+  "bg-paper-card": { fill: "#FBFBF8" },
   "text-white": { color: "#FFFFFF" },
-  "text-ink-on-green": { color: "#F7F4EE" },
-  "text-wood": { color: "#3F372F" },
-  "text-wood-muted": { color: "#736B61" },
-  "text-moss": { color: "#4F7A4E" },
-  "text-moss-dark": { color: "#36563A" },
-  "border-border-paper": { borderColor: "#DAD1C4" },
-  "border-border-card": { borderColor: "#CFC6B8" },
+  "text-ink-on-green": { color: "#F7F6F2" },
+  "text-wood": { color: "#493E36" },
+  "text-wood-muted": { color: "#A8968A" },
+  "text-moss": { color: "#367D36" },
+  "text-moss-dark": { color: "#297A29" },
+  "border-border-paper": { borderColor: "#DAE2CF" },
+  "border-border-card": { borderColor: "#E7ECDF" },
 };
 
 // Tailwind spacing scale (px)
@@ -130,7 +130,7 @@ const COMPONENTS = [
     name: "Button/Primary",
     label: "Click me",
     className:
-      "inline-flex min-h-[44px] items-center justify-center rounded-xl bg-moss px-6 py-3 text-base font-medium text-white transition-colors hover:bg-moss-dark focus:outline-none focus:ring-2 focus:ring-moss/50 focus:ring-offset-2 focus:ring-offset-paper",
+      "inline-flex min-h-[44px] items-center justify-center rounded-xl bg-moss px-6 py-3 text-base font-medium text-ink-on-green transition-colors hover:bg-moss-dark focus:outline-none focus:ring-2 focus:ring-moss/50 focus:ring-offset-2 focus:ring-offset-paper",
   },
   {
     name: "Button/Ghost",
