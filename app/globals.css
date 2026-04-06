@@ -292,6 +292,54 @@
     }
   }
 
+  /* Soup House — ingredient tag tap feedback */
+  @keyframes soup-house-tag-pop {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    45% {
+      transform: scale(1.1);
+    }
+  }
+
+  @keyframes modal-scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes ingredient-reveal {
+    from {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes ingredient-text-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .soup-house-tag-pop {
+    animation: soup-house-tag-pop 0.45s ease-out;
+  }
+
   .animate-fade-in-up {
     animation: fade-in-up 0.75s ease-out forwards;
   }
@@ -300,9 +348,25 @@
     animation: float-gentle 2.5s ease-in-out infinite;
   }
 
+  .animate-modal-scale-in {
+    animation: modal-scale-in 0.28s ease-out forwards;
+  }
+
+  .animate-ingredient-reveal {
+    animation: ingredient-reveal 0.45s ease-out forwards;
+  }
+
+  .animate-ingredient-text-reveal {
+    animation: ingredient-text-reveal 0.55s ease-out 0.08s both;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .animate-fade-in-up,
-    .animate-float-gentle {
+    .animate-float-gentle,
+    .soup-house-tag-pop,
+    .animate-modal-scale-in,
+    .animate-ingredient-reveal,
+    .animate-ingredient-text-reveal {
       animation: none;
       opacity: 1;
       transform: none;

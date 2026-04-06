@@ -1,8 +1,8 @@
 import { PageHero } from "@/components/PageHero";
-import { MissionCard } from "@/components/cards/MissionCard";
-import { missions } from "@/data/missions";
+import { AdventureCard } from "@/components/cards/AdventureCard";
+import { adventures } from "@/data/adventures";
 
-export default function MissionsPage() {
+export default function AdventuresPage() {
   return (
     <div className="min-h-screen bg-paper text-wood">
       <PageHero
@@ -13,9 +13,9 @@ export default function MissionsPage() {
       />
       <div className="mx-auto max-w-3xl px-4 pb-16 sm:px-6 sm:pb-20">
         <ul className="grid gap-6 sm:gap-8" aria-label="Little adventures">
-          {missions.map((mission) => (
-            <li key={mission.id}>
-              <MissionCard mission={mission} />
+          {adventures.map((adventure) => (
+            <li key={adventure.slug}>
+              <AdventureCard adventure={adventure} />
             </li>
           ))}
         </ul>

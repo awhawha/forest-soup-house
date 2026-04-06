@@ -1,8 +1,8 @@
 import { Button } from "@/components/Button";
-import type { Adventure } from "@/data/adventure";
+import type { TodaysAdventure } from "@/data/todaysAdventures";
 
 interface TodaysAdventureCardProps {
-  adventure: Adventure;
+  adventure: TodaysAdventure;
 }
 
 /**
@@ -101,7 +101,11 @@ export function TodaysAdventureCard({ adventure }: TodaysAdventureCardProps) {
           ) : null}
         </div>
 
-        <Button variant="outline" href="/missions" className="w-full justify-center text-sm">
+        <Button
+          variant="outline"
+          href={`/adventures/${adventure.slug}`}
+          className="w-full justify-center text-sm"
+        >
           Begin quest · 開始小冒險
         </Button>
       </div>

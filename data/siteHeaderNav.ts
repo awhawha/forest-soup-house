@@ -8,6 +8,6 @@ export const FOREST_WORLD_LINKS: { href: string; label: string }[] = [
 
 export const TOP_LEVEL_NAV_LINKS: { href: string; label: string }[] = [
   { href: "/stories", label: "Story Time · 故事時間" },
-  { href: "/missions", label: "Little Adventures · 森林小冒險" },
+  { href: "/adventures", label: "Little Adventures · 森林小冒險" },
   { href: "/about", label: "About · 關於湯湯屋" },
 ];

@@ -52,7 +52,7 @@ export default async function SoupCardDetailPage({ params }: PageProps) {
           <Button variant="ghost-moss" href="/soup-cards">
             Back to soup cards · 回到湯譜卡
           </Button>
-          <Button variant="ghost-moss" href="/missions">
+          <Button variant="ghost-moss" href="/adventures">
             Explore adventures · 看更多小冒險
           </Button>
         </div>

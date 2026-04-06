@@ -1,10 +1,12 @@
 /**
- * Forest Soup House — Today's Adventure
- * Bilingual EN + Traditional Chinese for homepage cards.
+ * Homepage — Today's Little Adventures cards (preview copy).
+ * Each `slug` matches `data/adventures.ts` for deep links to `/adventures/[slug]`.
  */
 
-export interface Adventure {
+export interface TodaysAdventure {
   id: string;
+  /** Same slug as full adventure page */
+  slug: string;
   title: string;
   titleZh?: string;
   prompt: string;
@@ -17,9 +19,10 @@ export interface Adventure {
   locationZh?: string;
 }
 
-export const adventures: Adventure[] = [
+export const todaysAdventures: TodaysAdventure[] = [
   {
     id: "adv-1",
+    slug: "find-a-forest-smell",
     title: "Find a forest smell",
     titleZh: "找一個森林的味道",
     prompt:
@@ -35,6 +38,7 @@ export const adventures: Adventure[] = [
   },
   {
     id: "adv-2",
+    slug: "share-a-soup-story",
     title: "Share a soup story",
     titleZh: "分享一個湯的故事",
     prompt:
@@ -50,6 +54,7 @@ export const adventures: Adventure[] = [
   },
   {
     id: "adv-3",
+    slug: "one-ingredient-of-the-day",
     title: "One ingredient of the day",
     titleZh: "今日的一味材料",
     prompt:

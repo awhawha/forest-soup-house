@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ThemeIngredientCollect } from "@/components/world/ThemeIngredientCollect";
 import { locations } from "@/data/locations";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ theme?: string; ingredient?: string }>;
 };
 
 export function generateStaticParams() {
@@ -23,8 +25,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function LocationPage({ params }: PageProps) {
+export default async function LocationPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const sp = await searchParams;
   const location = locations.find((l) => l.slug === slug);
 
   if (!location) {
@@ -34,9 +37,19 @@ export default async function LocationPage({ params }: PageProps) {
   const { name, nameEn, emoji, tagline, description, atmosphere, status } =
     location;
 
+  const locationOpen = status === "open";
+
   return (
     <div className="min-h-screen bg-paper text-wood">
-      <div className="mx-auto max-w-2xl px-page-px pb-sp-12 pt-hero-pt sm:px-page-px-sm sm:pb-sp-16 sm:pt-hero-pt-sm">
+      <div className="relative min-h-screen">
+        <div className="mx-auto max-w-2xl px-page-px pb-sp-12 pt-hero-pt sm:px-page-px-sm sm:pb-sp-16 sm:pt-hero-pt-sm">
+          <ThemeIngredientCollect
+            locationSlug={slug}
+            themeSlug={sp.theme}
+            ingredientSlug={sp.ingredient}
+            locationOpen={locationOpen}
+          />
+
         {status === "coming-soon" ? (
           <div
             className="mb-sp-8 rounded-2xl border border-moss-soft/35 bg-moss-pale/45 px-sp-4 py-sp-4 text-center text-sm leading-relaxed text-wood sm:px-sp-6"
@@ -86,6 +99,7 @@ export default async function LocationPage({ params }: PageProps) {
             </Link>
           </div>
         </article>
+        </div>
       </div>
     </div>
   );

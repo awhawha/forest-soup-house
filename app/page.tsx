@@ -1,7 +1,7 @@
 import { EntryPathCard } from "@/components/cards/EntryPathCard";
 import { TodaysAdventureCard } from "@/components/TodaysAdventureCard";
 import { Button } from "@/components/Button";
-import { adventures } from "@/data/adventure";
+import { todaysAdventures } from "@/data/todaysAdventures";
 
 const entryPaths = [
   {
@@ -33,10 +33,10 @@ const entryPaths = [
 ];
 
 export default function HomePage() {
-  const start = new Date().getDate() % adventures.length;
+  const start = new Date().getDate() % todaysAdventures.length;
   const todays = [
-    ...adventures.slice(start),
-    ...adventures.slice(0, start),
+    ...todaysAdventures.slice(start),
+    ...todaysAdventures.slice(0, start),
   ].slice(0, 3);
 
   return (
