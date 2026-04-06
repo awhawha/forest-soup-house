@@ -61,6 +61,14 @@ export function saveProgress(theme: Theme, progress: ThemeProgress): void {
   localStorage.setItem(THEME_PROGRESS_KEY(theme.slug), JSON.stringify(progress));
 }
 
+/** 移除此主題在 localStorage 的進度（採集、煮湯、徽章）。 */
+export function clearThemeProgress(theme: Theme): ThemeProgress {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(THEME_PROGRESS_KEY(theme.slug));
+  }
+  return getDefaultProgress(theme);
+}
+
 export function markIngredientCollected(theme: Theme, ingredientSlug: string): ThemeProgress {
   const progress = loadProgress(theme);
   if (progress.ingredients[ingredientSlug]) {

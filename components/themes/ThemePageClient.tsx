@@ -6,6 +6,7 @@ import { MagicStoryHouseClient } from "@/components/stories/MagicStoryHouseClien
 import { ThemeCollectionModal } from "@/components/themes/ThemeCollectionModal";
 import type { Theme, ThemeIngredient } from "@/data/themes";
 import {
+  clearThemeProgress,
   getDefaultProgress,
   loadProgress,
   saveProgress,
@@ -312,6 +313,20 @@ export function ThemePageClient({ theme }: ThemePageClientProps) {
     setActiveChallengeSlug((prev) => (prev === slug ? null : slug));
   };
 
+  const handleClearProgress = () => {
+    if (
+      !window.confirm(
+        "確定要清除這個主題的採集與煮湯紀錄嗎？將回到一開始的狀態。",
+      )
+    ) {
+      return;
+    }
+    const fresh = clearThemeProgress(theme);
+    commit(fresh);
+    setActiveChallengeSlug(null);
+    setModal(null);
+  };
+
   return (
     <div className="relative min-h-screen bg-paper text-wood">
       <header className="mx-auto max-w-2xl px-page-px pb-sp-8 pt-hero-pt text-center sm:px-page-px-sm sm:pb-sp-10 sm:pt-hero-pt-sm">
@@ -335,7 +350,18 @@ export function ThemePageClient({ theme }: ThemePageClientProps) {
 
       <div className="mx-auto max-w-2xl space-y-sp-12 px-page-px pb-sp-16 sm:px-page-px-sm sm:pb-sp-20">
         <section aria-label="採集與煮湯">
-          <h2 className="font-heading text-lg font-medium text-moss sm:text-xl">今天需要這些材料</h2>
+          <div className="flex flex-col gap-sp-2 sm:flex-row sm:items-end sm:justify-between sm:gap-sp-4">
+            <h2 className="font-heading text-lg font-medium text-moss sm:text-xl">
+              今天需要這些材料
+            </h2>
+            <button
+              type="button"
+              onClick={handleClearProgress}
+              className="self-start text-xs text-wood-muted underline decoration-border-paper underline-offset-2 transition-colors hover:text-moss sm:shrink-0"
+            >
+              清除紀錄
+            </button>
+          </div>
 
           <div className="mt-sp-6 grid grid-cols-1 gap-sp-3 sm:grid-cols-3 sm:gap-sp-4">
             {theme.ingredients.map((ing) => {
