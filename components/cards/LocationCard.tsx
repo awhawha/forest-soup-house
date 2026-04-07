@@ -15,8 +15,9 @@ export function LocationCard({
   location,
   ctaLabel = "探索地點 →",
 }: LocationCardProps) {
-  const { slug, name, nameEn, emoji, tagline, image, status } = location;
-  const href = `/world/${slug}`;
+  const { slug, name, nameEn, emoji, tagline, image, status, href: hrefOverride } =
+    location;
+  const href = hrefOverride ?? `/world/${slug}`;
 
   return (
     <Link

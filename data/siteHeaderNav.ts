@@ -1,4 +1,4 @@
-/** Main site header — Forest World + top-level links (desktop dropdown + mobile drawer). */
+/** Main site header — Forest World dropdown + top-level links（不含故事；故事入口從湯湯屋主屋進入） */
 
 export const FOREST_WORLD_LINKS: { href: string; label: string }[] = [
   { href: "/world", label: "Forest Map · 森林地圖" },
@@ -7,7 +7,6 @@ export const FOREST_WORLD_LINKS: { href: string; label: string }[] = [
 ];
 
 export const TOP_LEVEL_NAV_LINKS: { href: string; label: string }[] = [
-  { href: "/stories", label: "Story Time · 故事時間" },
-  { href: "/adventures", label: "Little Adventures · 森林小冒險" },
+  { href: "/missions", label: "Little Adventures · 森林小冒險" },
   { href: "/about", label: "About · 關於湯湯屋" },
 ];

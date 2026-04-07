@@ -1,10 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import { MagicStoryHouseClient } from "@/components/stories/MagicStoryHouseClient";
-import { ThemeCollectionModal } from "@/components/themes/ThemeCollectionModal";
-import type { Theme, ThemeIngredient } from "@/data/themes";
+import {
+  ThemeCollectionConfirmSheet,
+  ThemeCollectionModal,
+} from "@/components/themes/ThemeCollectionModal";
+import { soupCards } from "@/data/soupCards";
+import type { Theme, ThemeIngredient, ThemeParentNote } from "@/data/themes";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 import {
   clearThemeProgress,
   getDefaultProgress,
@@ -15,6 +27,76 @@ import {
 
 interface ThemePageClientProps {
   theme: Theme;
+  /** 主題列表中的下一則（最後一則為 null） */
+  nextThemeSlug: string | null;
+  nextThemeTitle: string | null;
+}
+
+function collectionTypeHint(type: ThemeIngredient["collection"]["type"]): string {
+  switch (type) {
+    case "choice":
+      return "選一個答案";
+    case "riddle":
+      return "猜一個謎語";
+    case "secret":
+      return "說一個秘密";
+    default:
+      return "";
+  }
+}
+
+function magicZhParagraphs(theme: Theme): string[] {
+  if (theme.magicParagraphsZh?.length) return theme.magicParagraphsZh;
+  return theme.storyContent
+    .split(/\n\n+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function showMagicStoryHouse(theme: Theme): boolean {
+  const zh = magicZhParagraphs(theme);
+  const en = theme.magicParagraphsEn ?? [];
+  return Boolean(
+    theme.audioSrc &&
+      (theme.magicImageSrc ?? theme.image) &&
+      theme.magicSubtitleZh &&
+      zh.length > 0 &&
+      en.length > 0 &&
+      en.length === zh.length,
+  );
+}
+
+/** 給大人：淺色區塊，直接展開 */
+function ParentNoteSection({ note }: { note: ThemeParentNote }) {
+  return (
+    <section
+      aria-label="給大人的說明"
+      className="rounded-2xl border border-border-paper/80 bg-moss-pale/25 px-sp-5 py-sp-5 sm:px-sp-6 sm:py-sp-6"
+    >
+      <p className="text-[11px] font-medium text-wood-muted sm:text-xs">
+        <span className="tracking-wide">給大人 · </span>
+        <span className="uppercase tracking-[0.12em]">FOR GROWN-UPS</span>
+      </p>
+      <div className="mt-sp-4 space-y-sp-4 text-sm leading-relaxed text-wood">
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-wide text-wood-muted sm:text-xs">這個故事在探索</p>
+          <p className="mt-sp-1.5">{note.theme}</p>
+        </div>
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-wide text-wood-muted sm:text-xs">孩子會練習</p>
+          <ul className="mt-sp-1.5 list-disc space-y-sp-1 pl-sp-5 marker:text-wood-muted">
+            {note.skills.map((s) => (
+              <li key={s}>{s}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-wide text-wood-muted sm:text-xs">可以這樣延伸</p>
+          <p className="mt-sp-1.5">{note.talkingPoint}</p>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 function riddleAnswerOk(input: string, keyword: string): boolean {
@@ -26,17 +108,37 @@ function riddleAnswerOk(input: string, keyword: string): boolean {
   return false;
 }
 
+function CollectionPromptHeading({ text }: { text: string }) {
+  return (
+    <p className="flex gap-sp-2 border-b border-moss/15 py-sp-3 text-base font-medium leading-snug text-moss sm:text-[17px]">
+      <span className="mt-0.5 shrink-0 select-none text-moss" aria-hidden>
+        ✦
+      </span>
+      <span>{text}</span>
+    </p>
+  );
+}
+
 interface IngredientChallengePanelProps {
   ing: ThemeIngredient;
   onOpenModal: (finaResponse: string) => void;
+  variant?: "inline" | "sheet";
+  /** 手機抽屜：選擇題底部的關閉，或共用離開 */
+  onDismissSheet?: () => void;
 }
 
-function IngredientChallengePanel({ ing, onOpenModal }: IngredientChallengePanelProps) {
+function IngredientChallengePanel({
+  ing,
+  onOpenModal,
+  variant = "inline",
+  onDismissSheet,
+}: IngredientChallengePanelProps) {
   const [riddleInput, setRiddleInput] = useState("");
   const [riddleShowHint, setRiddleShowHint] = useState(false);
   const [secretText, setSecretText] = useState("");
 
   const c = ing.collection;
+  const isSheet = variant === "sheet";
 
   useEffect(() => {
     setRiddleInput("");
@@ -46,7 +148,7 @@ function IngredientChallengePanel({ ing, onOpenModal }: IngredientChallengePanel
 
   const handleRiddleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (c.type !== "riddle") return;
+    if (c.type !== "riddle" || !c.riddle) return;
     const { riddle } = c;
     if (riddleAnswerOk(riddleInput, riddle.answer)) {
       onOpenModal(riddle.finaResponse);
@@ -57,86 +159,203 @@ function IngredientChallengePanel({ ing, onOpenModal }: IngredientChallengePanel
 
   const handleSecretSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (c.type !== "secret") return;
+    if (c.type !== "secret" || !c.secret) return;
     const t = secretText.trim();
     if (!t) return;
     onOpenModal(c.secret.finaResponse);
   };
 
-  return (
-    <div className="rounded-2xl border border-border-paper bg-paper-card/90 p-sp-5 sm:p-sp-6">
-      {c.type === "choice" ? (
+  const sheetFooter = (children: ReactNode) => (
+    <div className="mt-sp-4 shrink-0 border-t border-border-paper pt-sp-4">{children}</div>
+  );
+
+  const inner = (
+    <>
+      {c.type === "choice" && c.options ? (
         <>
-          <ul className="grid gap-sp-2" role="list">
-            {c.options.map((opt) => (
-              <li key={opt.text}>
+          {!isSheet ? <CollectionPromptHeading text={c.prompt} /> : null}
+          {isSheet ? (
+            <div className="flex min-h-0 flex-1 flex-col gap-0">
+              <ul
+                className="min-h-0 flex-1 list-none space-y-sp-2 overflow-y-auto overscroll-contain"
+                role="list"
+              >
+                {c.options.map((opt) => (
+                  <li key={opt.text}>
+                    <button
+                      type="button"
+                      onClick={() => onOpenModal(opt.finaResponse)}
+                      className="w-full rounded-xl border border-border-paper bg-paper px-sp-3 py-sp-3 text-left text-sm leading-snug text-wood transition-[border-color,box-shadow] hover:border-moss-soft/45 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-moss/40 focus:ring-offset-2 focus:ring-offset-paper"
+                    >
+                      <span className="text-wood-muted">○</span> {opt.text}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              {sheetFooter(
                 <button
                   type="button"
-                  onClick={() => onOpenModal(opt.finaResponse)}
-                  className="w-full rounded-xl border border-border-paper bg-paper px-sp-3 py-sp-3 text-left text-sm leading-snug text-wood transition-[border-color,box-shadow] hover:border-moss-soft/45 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-moss/40 focus:ring-offset-2 focus:ring-offset-paper"
+                  onClick={onDismissSheet}
+                  className="btn btn-outline btn-md inline-flex w-full min-h-tap-target items-center justify-center"
                 >
-                  <span className="text-wood-muted">○</span> {opt.text}
-                </button>
-              </li>
-            ))}
-          </ul>
+                  先關閉
+                </button>,
+              )}
+            </div>
+          ) : (
+            <ul className={`mt-sp-4 grid gap-sp-2`} role="list">
+              {c.options.map((opt) => (
+                <li key={opt.text}>
+                  <button
+                    type="button"
+                    onClick={() => onOpenModal(opt.finaResponse)}
+                    className="w-full rounded-xl border border-border-paper bg-paper px-sp-3 py-sp-3 text-left text-sm leading-snug text-wood transition-[border-color,box-shadow] hover:border-moss-soft/45 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-moss/40 focus:ring-offset-2 focus:ring-offset-paper"
+                  >
+                    <span className="text-wood-muted">○</span> {opt.text}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </>
       ) : null}
 
-      {c.type === "riddle" ? (
+      {c.type === "riddle" && c.riddle ? (
         <>
-          <p className="text-sm leading-relaxed text-wood-muted">{c.riddle.question}</p>
-          <form onSubmit={handleRiddleSubmit} className="mt-sp-4 space-y-sp-3">
-            <label className="sr-only" htmlFor={`riddle-${ing.slug}`}>
-              謎語答案
-            </label>
-            <input
-              id={`riddle-${ing.slug}`}
-              type="text"
-              value={riddleInput}
-              onChange={(e) => setRiddleInput(e.target.value)}
-              className="w-full rounded-xl border border-border-paper bg-paper px-sp-3 py-sp-2 text-sm text-wood placeholder:text-wood-muted/70 focus:border-moss-soft/50 focus:outline-none focus:ring-2 focus:ring-moss/30"
-              placeholder="輸入你的答案⋯"
-              autoComplete="off"
-            />
-            {riddleShowHint ? (
-              <p className="text-sm text-moss" role="status">
-                {c.riddle.hint}
-              </p>
-            ) : null}
-            <button
-              type="submit"
-              className="btn btn-primary btn-sm inline-flex min-h-tap-target items-center"
+          {!isSheet ? <CollectionPromptHeading text={c.prompt} /> : null}
+          {isSheet ? (
+            <form
+              onSubmit={handleRiddleSubmit}
+              className="flex min-h-0 flex-1 flex-col gap-0 overflow-hidden"
             >
-              猜猜看
-            </button>
-          </form>
+              <div className="min-h-0 flex-1 space-y-sp-3 overflow-y-auto pb-sp-2">
+                <p className="text-sm leading-relaxed text-wood">{c.riddle.question}</p>
+                <label className="sr-only" htmlFor={`riddle-${ing.slug}`}>
+                  謎語答案
+                </label>
+                <input
+                  id={`riddle-${ing.slug}`}
+                  type="text"
+                  value={riddleInput}
+                  onChange={(e) => setRiddleInput(e.target.value)}
+                  className="w-full rounded-xl border border-border-paper bg-paper px-sp-3 py-sp-2 text-sm text-wood placeholder:text-wood-muted/70 focus:border-moss-soft/50 focus:outline-none focus:ring-2 focus:ring-moss/30"
+                  placeholder="輸入你的答案⋯"
+                  autoComplete="off"
+                />
+                {riddleShowHint ? (
+                  <p className="text-sm text-moss" role="status">
+                    {c.riddle.hint}
+                  </p>
+                ) : null}
+              </div>
+              {sheetFooter(
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-md inline-flex w-full min-h-tap-target items-center justify-center"
+                >
+                  猜猜看
+                </button>,
+              )}
+            </form>
+          ) : (
+            <>
+              <p className="mt-sp-4 text-sm leading-relaxed text-wood">{c.riddle.question}</p>
+              <form onSubmit={handleRiddleSubmit} className="mt-sp-4 space-y-sp-3">
+                <label className="sr-only" htmlFor={`riddle-${ing.slug}`}>
+                  謎語答案
+                </label>
+                <input
+                  id={`riddle-${ing.slug}`}
+                  type="text"
+                  value={riddleInput}
+                  onChange={(e) => setRiddleInput(e.target.value)}
+                  className="w-full rounded-xl border border-border-paper bg-paper px-sp-3 py-sp-2 text-sm text-wood placeholder:text-wood-muted/70 focus:border-moss-soft/50 focus:outline-none focus:ring-2 focus:ring-moss/30"
+                  placeholder="輸入你的答案⋯"
+                  autoComplete="off"
+                />
+                {riddleShowHint ? (
+                  <p className="text-sm text-moss" role="status">
+                    {c.riddle.hint}
+                  </p>
+                ) : null}
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-sm inline-flex min-h-tap-target items-center"
+                >
+                  猜猜看
+                </button>
+              </form>
+            </>
+          )}
         </>
       ) : null}
 
-      {c.type === "secret" ? (
-        <form onSubmit={handleSecretSubmit} className="space-y-sp-3">
-          <label className="sr-only" htmlFor={`secret-${ing.slug}`}>
-            {c.secret.placeholder}
-          </label>
-          <textarea
-            id={`secret-${ing.slug}`}
-            value={secretText}
-            onChange={(e) => setSecretText(e.target.value)}
-            rows={3}
-            placeholder={c.secret.placeholder}
-            className="w-full resize-y rounded-xl border border-border-paper bg-paper px-sp-3 py-sp-2 text-sm text-wood placeholder:text-wood-muted/70 focus:border-moss-soft/50 focus:outline-none focus:ring-2 focus:ring-moss/30"
-          />
-          <button
-            type="submit"
-            disabled={!secretText.trim()}
-            className="btn btn-primary btn-sm inline-flex min-h-tap-target items-center disabled:pointer-events-none disabled:opacity-45"
-          >
-            召喚材料
-          </button>
-        </form>
+      {c.type === "secret" && c.secret ? (
+        <>
+          {!isSheet ? <CollectionPromptHeading text={c.prompt} /> : null}
+          {isSheet ? (
+            <form
+              onSubmit={handleSecretSubmit}
+              className="flex min-h-0 flex-1 flex-col overflow-hidden"
+            >
+              <div className="min-h-0 flex-1 overflow-y-auto pb-sp-2">
+                <label className="sr-only" htmlFor={`secret-${ing.slug}`}>
+                  {c.secret.placeholder}
+                </label>
+                <textarea
+                  id={`secret-${ing.slug}`}
+                  value={secretText}
+                  onChange={(e) => setSecretText(e.target.value)}
+                  rows={4}
+                  placeholder={c.secret.placeholder}
+                  className="w-full resize-y rounded-xl border border-border-paper bg-paper px-sp-3 py-sp-2 text-sm text-wood placeholder:text-wood-muted/70 focus:border-moss-soft/50 focus:outline-none focus:ring-2 focus:ring-moss/30"
+                />
+              </div>
+              {sheetFooter(
+                <button
+                  type="submit"
+                  disabled={!secretText.trim()}
+                  className="btn btn-primary btn-md inline-flex w-full min-h-tap-target items-center justify-center disabled:pointer-events-none disabled:opacity-45"
+                >
+                  召喚材料
+                </button>,
+              )}
+            </form>
+          ) : (
+            <form onSubmit={handleSecretSubmit} className="space-y-sp-3">
+              <label className="sr-only" htmlFor={`secret-${ing.slug}`}>
+                {c.secret.placeholder}
+              </label>
+              <textarea
+                id={`secret-${ing.slug}`}
+                value={secretText}
+                onChange={(e) => setSecretText(e.target.value)}
+                rows={3}
+                placeholder={c.secret.placeholder}
+                className="mt-sp-4 w-full resize-y rounded-xl border border-border-paper bg-paper px-sp-3 py-sp-2 text-sm text-wood placeholder:text-wood-muted/70 focus:border-moss-soft/50 focus:outline-none focus:ring-2 focus:ring-moss/30"
+              />
+              <button
+                type="submit"
+                disabled={!secretText.trim()}
+                className="btn btn-primary btn-sm inline-flex min-h-tap-target items-center disabled:pointer-events-none disabled:opacity-45"
+              >
+                召喚材料
+              </button>
+            </form>
+          )}
+        </>
       ) : null}
-    </div>
+    </>
+  );
+
+  if (isSheet) {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-sp-1 pb-sp-1 pt-0">{inner}</div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl border border-border-paper bg-paper-card/90 p-sp-5 sm:p-sp-6">{inner}</div>
   );
 }
 
@@ -156,6 +375,7 @@ function MysteryIngredientCell({
   onAddToPot,
 }: MysteryIngredientCellProps) {
   if (!st.collected) {
+    const typeHint = collectionTypeHint(ing.collection.type);
     return (
       <button
         type="button"
@@ -173,13 +393,8 @@ function MysteryIngredientCell({
         >
           ？
         </span>
-        <p className="mt-sp-2 line-clamp-4 w-full text-[11px] leading-snug text-wood-muted/85 sm:text-xs">
-          {ing.collection.prompt}
-        </p>
-        <span className="mt-sp-2 text-[11px] font-medium uppercase tracking-wide text-wood-muted/60 sm:text-xs">
-          ✦ 神秘材料
-        </span>
-        <span className="mt-sp-1 text-xs text-wood-muted/80">點擊探索</span>
+        <p className="mt-sp-3 text-sm font-medium text-moss">{typeHint}</p>
+        <span className="mt-sp-2 text-[11px] text-wood-muted/90 sm:text-xs">點擊開始</span>
       </button>
     );
   }
@@ -228,10 +443,18 @@ function MysteryIngredientCell({
   );
 }
 
-export function ThemePageClient({ theme }: ThemePageClientProps) {
+function getSoupDisplayName(theme: Theme): string {
+  return soupCards.find((s) => s.slug === theme.soupSlug)?.name ?? theme.title;
+}
+
+export function ThemePageClient({ theme, nextThemeSlug, nextThemeTitle }: ThemePageClientProps) {
+  const soupDisplayName = useMemo(() => getSoupDisplayName(theme), [theme]);
   const [progress, setProgress] = useState<ThemeProgress>(() => getDefaultProgress(theme));
-  const [activeChallengeSlug, setActiveChallengeSlug] = useState<string | null>(null);
+  const [activeIngredient, setActiveIngredient] = useState<string | null>(null);
   const [modal, setModal] = useState<{ slug: string; finaResponse: string } | null>(null);
+  const [challengeSheetEntered, setChallengeSheetEntered] = useState(false);
+
+  const isMdUp = useMediaQuery("(min-width: 768px)");
 
   useEffect(() => {
     setProgress(loadProgress(theme));
@@ -284,48 +507,66 @@ export function ThemePageClient({ theme }: ThemePageClientProps) {
       },
     });
     setModal(null);
-    setActiveChallengeSlug(null);
+    setActiveIngredient(null);
   };
 
   const dismissModal = () => {
     setModal(null);
   };
 
-  const showMagicHouse =
-    Boolean(theme.audioSrc) &&
-    (theme.magicParagraphsZh?.length ?? 0) > 0 &&
-    (theme.magicParagraphsEn?.length ?? 0) > 0 &&
-    theme.magicParagraphsZh!.length === theme.magicParagraphsEn!.length;
+  const closeChallengeSheet = useCallback(() => {
+    setActiveIngredient(null);
+  }, []);
 
   const modalIngredientName =
     modal ? theme.ingredients.find((i) => i.slug === modal.slug)?.name ?? "" : "";
 
-  const activeIng = activeChallengeSlug
-    ? theme.ingredients.find((i) => i.slug === activeChallengeSlug)
+  const activeIng = activeIngredient
+    ? theme.ingredients.find((i) => i.slug === activeIngredient)
     : undefined;
   const showChallengePanel = Boolean(
     activeIng &&
-      activeChallengeSlug &&
-      !(progress.ingredients[activeChallengeSlug]?.collected ?? false),
+      activeIngredient &&
+      !(progress.ingredients[activeIngredient]?.collected ?? false),
   );
 
+  const showMobileChallengeSheet =
+    Boolean(showChallengePanel && activeIng && isMdUp === false && !modal);
+
+  useEffect(() => {
+    if (!showMobileChallengeSheet) {
+      setChallengeSheetEntered(false);
+      return;
+    }
+    const id = requestAnimationFrame(() => setChallengeSheetEntered(true));
+    return () => cancelAnimationFrame(id);
+  }, [showMobileChallengeSheet]);
+
+  useEffect(() => {
+    if (!showMobileChallengeSheet) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeChallengeSheet();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [showMobileChallengeSheet, closeChallengeSheet]);
+
   const handleMysteryClick = (slug: string) => {
-    setActiveChallengeSlug((prev) => (prev === slug ? null : slug));
+    setActiveIngredient((prev) => (prev === slug ? null : slug));
   };
 
   const handleClearProgress = () => {
-    if (
-      !window.confirm(
-        "確定要清除這個主題的採集與煮湯紀錄嗎？將回到一開始的狀態。",
-      )
-    ) {
+    if (!window.confirm("確定要清除這個主題的採集與煮湯紀錄嗎？將回到一開始的狀態。")) {
       return;
     }
     const fresh = clearThemeProgress(theme);
     commit(fresh);
-    setActiveChallengeSlug(null);
+    setActiveIngredient(null);
     setModal(null);
   };
+
+  const magicZh = useMemo(() => magicZhParagraphs(theme), [theme]);
+  const magicOn = useMemo(() => showMagicStoryHouse(theme), [theme]);
 
   return (
     <div className="relative min-h-screen bg-paper text-wood">
@@ -336,24 +577,31 @@ export function ThemePageClient({ theme }: ThemePageClientProps) {
         <p className="mt-sp-4 text-base leading-relaxed text-wood-muted sm:text-lg">{theme.tagline}</p>
       </header>
 
-      {showMagicHouse ? (
+      {magicOn && theme.audioSrc && theme.magicSubtitleZh && theme.magicParagraphsEn ? (
         <MagicStoryHouseClient
-          imageSrc={theme.magicImageSrc ?? "/images/stories/herbal-patch-story.png"}
+          imageSrc={(theme.magicImageSrc ?? theme.image)!}
           imageAlt={theme.magicImageAlt ?? ""}
-          audioSrc={theme.audioSrc!}
-          subtitleZh={theme.magicSubtitleZh ?? ""}
-          paragraphsZh={theme.magicParagraphsZh!}
-          paragraphsEn={theme.magicParagraphsEn!}
+          audioSrc={theme.audioSrc}
+          subtitleZh={theme.magicSubtitleZh}
+          paragraphsZh={magicZh}
+          paragraphsEn={theme.magicParagraphsEn}
           playButtonLayout="bottom-bar"
         />
       ) : null}
 
-      <div className="mx-auto max-w-2xl space-y-sp-12 px-page-px pb-sp-16 sm:px-page-px-sm sm:pb-sp-20">
-        <section aria-label="採集與煮湯">
+      <div className="mx-auto max-w-2xl space-y-sp-12 px-page-px pb-sp-16 pt-sp-2 sm:px-page-px-sm sm:pb-sp-20">
+        <section aria-label="採集與煮湯" className="pt-12">
           <div className="flex flex-col gap-sp-2 sm:flex-row sm:items-end sm:justify-between sm:gap-sp-4">
-            <h2 className="font-heading text-lg font-medium text-moss sm:text-xl">
-              今天需要這些材料
-            </h2>
+            <div className="min-w-0">
+              <h2 className="font-heading text-lg font-medium text-moss sm:text-xl">
+                煮出《{soupDisplayName}》需要這些材料
+              </h2>
+              <p className="mt-sp-3 max-w-xl text-sm leading-relaxed text-wood-muted">
+                點擊每張神秘卡片，完成小挑戰，就能找到材料。
+                <br />
+                找齊了再放進鍋裡。
+              </p>
+            </div>
             <button
               type="button"
               onClick={handleClearProgress}
@@ -365,11 +613,8 @@ export function ThemePageClient({ theme }: ThemePageClientProps) {
 
           <div className="mt-sp-6 grid grid-cols-1 gap-sp-3 sm:grid-cols-3 sm:gap-sp-4">
             {theme.ingredients.map((ing) => {
-              const st = progress.ingredients[ing.slug] ?? {
-                collected: false,
-                addedToPot: false,
-              };
-              const isChallengeActive = activeChallengeSlug === ing.slug && !st.collected;
+              const st = progress.ingredients[ing.slug] ?? { collected: false, addedToPot: false };
+              const isChallengeActive = activeIngredient === ing.slug && !st.collected;
               return (
                 <MysteryIngredientCell
                   key={ing.slug}
@@ -383,7 +628,7 @@ export function ThemePageClient({ theme }: ThemePageClientProps) {
             })}
           </div>
 
-          {showChallengePanel && activeIng ? (
+          {showChallengePanel && activeIng && isMdUp === true ? (
             <>
               <div
                 className="my-sp-8 h-px w-full bg-gradient-to-r from-transparent via-border-paper to-transparent"
@@ -425,7 +670,15 @@ export function ThemePageClient({ theme }: ThemePageClientProps) {
               </svg>
             </div>
             <p className="mt-sp-4 text-center text-sm text-wood-muted">
-              已放入 {addedCount} / {theme.ingredients.length} 個材料
+              {allInPot && !progress.soupComplete ? (
+                <>
+                  材料都到齊了，可以開始煮《{soupDisplayName}》了！
+                </>
+              ) : (
+                <>
+                  已放入 {addedCount} / {theme.ingredients.length} 個材料，再加油！
+                </>
+              )}
             </p>
             {allInPot && !progress.soupComplete ? (
               <button
@@ -454,18 +707,31 @@ export function ThemePageClient({ theme }: ThemePageClientProps) {
           ) : null}
         </section>
 
-        <section className="grid gap-sp-4 sm:grid-cols-2" aria-label="實體體驗建議">
-          <div className="rounded-2xl border border-border-paper bg-paper-card/80 p-card-padding">
-            <h3 className="font-heading text-base font-medium text-wood">小冒險</h3>
-            <p className="mt-sp-1 text-sm font-medium text-moss">{theme.adventure.title}</p>
-            <p className="mt-sp-3 text-sm leading-relaxed text-wood-muted">{theme.adventure.description}</p>
-          </div>
-          <div className="rounded-2xl border border-border-paper bg-paper-card/80 p-card-padding">
-            <h3 className="font-heading text-base font-medium text-wood">自然手作</h3>
-            <p className="mt-sp-1 text-sm font-medium text-moss">{theme.natureCraft.title}</p>
-            <p className="mt-sp-3 text-sm leading-relaxed text-wood-muted">{theme.natureCraft.description}</p>
+        <section className="space-y-sp-4" aria-label="實體體驗建議">
+          <p className="text-sm leading-relaxed text-wood-muted">
+            今天的材料找齊了嗎？還有兩件事可以一起做：
+          </p>
+          <div className="grid gap-sp-4 sm:grid-cols-2">
+            <div className="flex flex-col rounded-2xl border border-border-paper bg-paper-card/80 p-card-padding">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-wood-muted">小冒險 · 出門去做</p>
+              <p className="mt-sp-2 font-heading text-base font-semibold text-wood">{theme.adventure.title}</p>
+              <p className="mt-sp-3 flex-1 text-sm leading-relaxed text-wood-muted">{theme.adventure.description}</p>
+              <p className="mt-sp-4 text-[11px] leading-snug text-wood-muted/85 sm:text-xs">
+                這個不影響煮湯，但會讓今天更有趣。
+              </p>
+            </div>
+            <div className="flex flex-col rounded-2xl border border-border-paper bg-paper-card/80 p-card-padding">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-wood-muted">自然手作 · 動手做</p>
+              <p className="mt-sp-2 font-heading text-base font-semibold text-wood">{theme.natureCraft.title}</p>
+              <p className="mt-sp-3 flex-1 text-sm leading-relaxed text-wood-muted">{theme.natureCraft.description}</p>
+              <p className="mt-sp-4 text-[11px] leading-snug text-wood-muted/85 sm:text-xs">
+                這個不影響煮湯，但會讓今天更有趣。
+              </p>
+            </div>
           </div>
         </section>
+
+        <ParentNoteSection note={theme.parentNote} />
 
         <section aria-labelledby="theme-books">
           <h2 id="theme-books" className="font-heading text-lg font-medium text-wood">
@@ -484,20 +750,83 @@ export function ThemePageClient({ theme }: ThemePageClientProps) {
           </ul>
         </section>
 
-        <nav className="border-t border-border-paper pt-sp-8 text-center" aria-label="主題導覽">
-          <Link href="/world" className="text-sm text-moss transition-colors hover:text-moss-hover">
-            ← 回到森林
+        <nav
+          className="flex flex-col gap-sp-4 border-t border-border-paper pt-sp-8 sm:flex-row sm:items-center sm:justify-between"
+          aria-label="主題導覽"
+        >
+          <Link href="/stories" className="text-sm font-medium text-moss transition-colors hover:text-moss-hover">
+            ← 回到故事時間
           </Link>
+          {nextThemeSlug && nextThemeTitle ? (
+            <Link
+              href={`/themes/${nextThemeSlug}`}
+              className="text-sm font-medium text-moss transition-colors hover:text-moss-hover sm:text-right"
+            >
+              → 下一個故事：{nextThemeTitle}
+            </Link>
+          ) : null}
         </nav>
       </div>
 
-      <ThemeCollectionModal
-        open={Boolean(modal)}
+      {modal && isMdUp === true ? (
+        <ThemeCollectionModal
+          open
+          ingredientName={modalIngredientName}
+          finaResponse={modal.finaResponse}
+          onConfirm={confirmCollect}
+          onDismiss={dismissModal}
+        />
+      ) : null}
+
+      <ThemeCollectionConfirmSheet
+        open={Boolean(modal) && isMdUp === false}
         ingredientName={modalIngredientName}
         finaResponse={modal?.finaResponse ?? ""}
         onConfirm={confirmCollect}
         onDismiss={dismissModal}
       />
+
+      {showMobileChallengeSheet && activeIng ? (
+        <>
+          <button
+            type="button"
+            className="fixed inset-0 z-40 bg-[rgba(0,0,0,0.3)] md:hidden"
+            aria-label="關閉採集挑戰"
+            onClick={closeChallengeSheet}
+          />
+          <div
+            className={`fixed bottom-0 left-0 z-50 flex max-h-[70vh] w-full min-h-0 flex-col overflow-hidden bg-paper-card shadow-[var(--shadow-warm)] transition-transform duration-300 ease-out md:hidden ${
+              challengeSheetEntered ? "translate-y-0" : "translate-y-full"
+            }`}
+            style={{ borderRadius: "16px 16px 0 0" }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="theme-challenge-sheet-title"
+          >
+            <div className="flex shrink-0 flex-col items-center px-sp-5 pt-3">
+              <div className="mb-3 h-[3px] w-8 rounded-full bg-wood-muted/35" aria-hidden />
+            </div>
+            <div className="shrink-0 px-sp-5 pb-sp-3">
+              <p id="theme-challenge-sheet-title" className="text-[12px] text-wood-muted">
+                ✦ {activeIng.name} 的挑戰
+              </p>
+              <p className="pt-sp-2 text-base font-medium leading-snug text-moss">
+                {activeIng.collection.prompt}
+              </p>
+            </div>
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-sp-5 pb-sp-6">
+              <IngredientChallengePanel
+                key={activeIng.slug}
+                variant="sheet"
+                ing={activeIng}
+                onOpenModal={(finaResponse) => setModal({ slug: activeIng.slug, finaResponse })}
+                onDismissSheet={closeChallengeSheet}
+              />
+            </div>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }
+

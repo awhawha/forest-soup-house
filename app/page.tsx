@@ -1,7 +1,11 @@
+import Link from "next/link";
 import { EntryPathCard } from "@/components/cards/EntryPathCard";
 import { TodaysAdventureCard } from "@/components/TodaysAdventureCard";
 import { Button } from "@/components/Button";
+import { getThemeBySlug } from "@/data/themes";
 import { todaysAdventures } from "@/data/todaysAdventures";
+
+const todaysThemeSlug = "memory-soup" as const;
 
 const entryPaths = [
   {
@@ -38,6 +42,8 @@ export default function HomePage() {
     ...todaysAdventures.slice(start),
     ...todaysAdventures.slice(0, start),
   ].slice(0, 3);
+
+  const todaysTheme = getThemeBySlug(todaysThemeSlug);
 
   return (
     <div className="bg-paper text-wood">
@@ -119,8 +125,39 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Today's journey — above Explore the forest */}
+      {todaysTheme ? (
+        <section
+          className="relative border-y border-moss/25 bg-gradient-to-b from-moss-pale/90 via-moss-pale/70 to-paper/95 py-12 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.5)] md:py-16"
+          aria-label="Today's journey"
+        >
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-moss/8 to-transparent" aria-hidden />
+          <div className="relative mx-auto w-full max-w-3xl px-6 text-center md:px-8">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-moss/90 sm:text-xs">今日旅程</p>
+            <h2 className="mt-sp-2 font-heading text-2xl font-semibold text-wood sm:text-3xl md:text-4xl">
+              今天的故事
+            </h2>
+            <p className="mx-auto mt-sp-3 max-w-xl text-lg font-medium leading-relaxed text-wood sm:text-xl">
+              {todaysTheme.title}
+            </p>
+            <p className="mx-auto mt-sp-3 max-w-xl text-base leading-relaxed text-wood-muted sm:text-lg">
+              {todaysTheme.tagline}
+            </p>
+            <p className="mt-sp-4 text-xs text-wood-muted/90 sm:text-sm">故事 · 採集 · 煮湯 · 延伸閱讀</p>
+            <div className="mt-sp-8">
+              <Link
+                href={`/themes/${todaysThemeSlug}`}
+                className="inline-flex min-h-[3.25rem] w-full max-w-md items-center justify-center rounded-2xl border-2 border-moss/40 bg-moss px-6 py-sp-4 font-heading text-base font-semibold text-paper shadow-[0_8px_28px_-6px_rgba(45,90,65,0.45)] transition-[transform,box-shadow] hover:border-moss-hover hover:bg-moss-hover hover:shadow-[0_12px_32px_-8px_rgba(45,90,65,0.5)] focus:outline-none focus-visible:ring-2 focus-visible:ring-moss/50 focus-visible:ring-offset-2 focus-visible:ring-offset-moss-pale motion-reduce:transition-none sm:text-lg"
+              >
+                開始今天的旅程 →
+              </Link>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       {/* 3. Explore section band */}
-      <section id="explore" className="bg-paper-section py-14 md:py-16" aria-label="Explore the forest">
+      <section id="explore" className="bg-paper-section py-12 md:py-14" aria-label="Explore the forest">
         <div className="mx-auto w-full max-w-5xl px-6 md:px-8">
           <div className="space-y-5">
             <div className="space-y-2">

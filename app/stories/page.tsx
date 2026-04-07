@@ -1,6 +1,9 @@
 import { PageHero } from "@/components/PageHero";
-import { StoryCard } from "@/components/cards/StoryCard";
-import { stories } from "@/data/stories";
+import { StoriesGridCard } from "@/components/cards/StoriesGridCard";
+import { themes } from "@/data/themes";
+
+const gridClass =
+  "grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 md:gap-x-4 lg:grid-cols-4 lg:gap-x-5";
 
 export default function StoriesPage() {
   return (
@@ -8,14 +11,20 @@ export default function StoriesPage() {
       <PageHero
         title="Story Time"
         titleZh="故事時間"
-        subtitle="Stories from the forest Soup House, meant to be read aloud together. Some open a full theme pack—not only the story."
-        subtitleZh="來自森林湯湯屋的故事，適合一起朗讀。標有「完整主題包」的卡片會帶你到整段旅程：故事、採集、煮湯、延伸閱讀。"
+        subtitle="Pick a story. Each one opens a full forest journey."
+        subtitleZh="選一個故事開始，帶你進入完整的森林旅程。"
       />
-      <div className="mx-auto max-w-3xl px-4 pb-16 sm:px-6 sm:pb-20">
-        <ul className="grid gap-6 sm:gap-8" aria-label="Stories from the forest">
-          {stories.map((story) => (
-            <li key={story.slug}>
-              <StoryCard story={story} />
+      <div className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 sm:pb-20">
+        <ul className={gridClass} aria-label="主題包">
+          {themes.map((theme) => (
+            <li key={theme.slug} className="min-w-0">
+              <StoriesGridCard
+                href={`/themes/${theme.slug}`}
+                image={theme.image}
+                title={theme.title}
+                tagline={theme.tagline}
+                showThemePackBadge
+              />
             </li>
           ))}
         </ul>
@@ -23,4 +32,3 @@ export default function StoriesPage() {
     </div>
   );
 }
-

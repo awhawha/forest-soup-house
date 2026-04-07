@@ -12,6 +12,8 @@ export interface Location {
   atmosphere: string;
   image?: string;
   status: "open" | "coming-soon";
+  /** 若設定，地圖卡片會連到此路徑，而非預設的 `/world/[slug]`（例：主屋 → 故事時間） */
+  href?: string;
 }
 
 export const locations: Location[] = [
@@ -19,6 +21,8 @@ export const locations: Location[] = [
     slug: "soup-house",
     name: "湯湯屋主屋",
     nameEn: "The Forest Soup House",
+    /** 主屋入口：進入故事時間（與導覽「故事時間」同一頁） */
+    href: "/stories",
     emoji: "🏠",
     tagline: "魔法湯在這裡誕生，充滿香氣與美味。",
     description:

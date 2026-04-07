@@ -30,5 +30,14 @@ export default async function ThemeDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  return <ThemePageClient theme={theme} />;
+  const idx = themes.findIndex((t) => t.slug === theme.slug);
+  const nextTheme = idx >= 0 && idx < themes.length - 1 ? themes[idx + 1] : null;
+
+  return (
+    <ThemePageClient
+      theme={theme}
+      nextThemeSlug={nextTheme?.slug ?? null}
+      nextThemeTitle={nextTheme?.title ?? null}
+    />
+  );
 }
