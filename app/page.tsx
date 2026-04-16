@@ -9,7 +9,7 @@ const todaysThemeSlug = "memory-soup" as const;
 
 const entryPaths = [
   {
-    title: "Explore the forest · 走進森林",
+    title: "Explore the map · 探索森林",
     href: "/world",
     description:
       "Visit the Soup House, the Whisper Shed, and other quiet places.",
@@ -80,81 +80,123 @@ export default function HomePage() {
             推開木門，感官、故事和遊戲在這裡交織成奇妙冒險
           </p>
           <div className="mt-sp-8 opacity-0 animate-fade-in-up" style={{ animationDelay: "0.42s" }}>
-            <Button
+            {/* <Button
               variant="primary"
               href="#explore"
               className="font-heading shadow-[var(--shadow-warm)]"
             >
               Explore the forest · 走進森林
-            </Button>
+            </Button> */}
           </div>
         </div>
       </section>
 
-      <div className="mx-auto w-full max-w-6xl px-6 py-14 md:px-8 md:py-20">
-        <div className="mx-auto w-full max-w-5xl">
-          {/* 1. Today’s Little Adventures */}
-          <section
-            className="space-y-5"
-            aria-label="Today's Little Adventures"
-          >
-            <div className="space-y-2">
-              <h2 className="font-heading text-xl font-medium text-wood md:text-2xl">
-                <span className="block">Today’s Little Adventures</span>
-                <span className="mt-1 block text-lg font-normal text-wood-muted md:text-xl">
-                  今日森林小冒險
-                </span>
-              </h2>
-              <p className="text-sm leading-7 text-wood-muted md:text-base">
-                Small moments happening in the forest today.
-              </p>
-              <p className="text-sm leading-7 text-wood-muted/90 md:text-base">
-                今天，森林裡有幾個小小的故事正在發生。
-              </p>
-            </div>
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              {todays.map((adventure) => (
-                <TodaysAdventureCard
-                  key={adventure.id}
-                  adventure={adventure}
-                />
-              ))}
-            </div>
-          </section>
+              
+      <section className="py-14 md:py-20" aria-label="Today's choice">
+  <div className="mx-auto w-full max-w-5xl px-6 md:px-8">
+
+    {/* Header */}
+    <div className="mb-10 space-y-1 text-center">
+      <p className="text-[10px] uppercase tracking-[0.1em] text-wood-muted">
+        Today in the forest · 今日森林時刻
+      </p>
+      <h2 className="font-heading text-xl font-medium text-wood md:text-2xl">
+        What would you like to do today?
+        <span className="mt-1 block text-base font-normal text-wood-muted">
+          今天想怎麼玩？
+        </span>
+      </h2>
+    </div>
+
+    {/* Two-column choice */}
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+      {/* Left: Adventures */}
+      <div className="flex flex-col gap-sp-4 overflow-hidden rounded-2xl border border-border-card bg-paper-card p-sp-6 shadow-[var(--shadow-paper)]">
+        <p className="text-[10px] uppercase tracking-[0.08em] text-wood-muted">
+          Forest adventure · 森林冒險
+        </p>
+        <div>
+          <h3 className="font-heading text-lg font-medium text-wood">
+            Today's Little Adventures
+          </h3>
+          <p className="text-sm text-wood-muted">今日森林小冒險</p>
+        </div>
+        <p className="text-sm leading-relaxed text-wood">
+          Pick an adventure, step outside, and brew something magic from everyday things.
+        </p>
+        <p className="text-xs leading-relaxed text-wood-muted">
+          挑一個小冒險，踏出門，把日常變成魔法。
+        </p>
+
+        {/* Mini adventure list */}
+        <div className="flex flex-col gap-2">
+          {todays.map((adventure) => (
+            <Link
+              key={adventure.id}
+              href={`/adventures/${adventure.slug}`}
+              className="flex items-start gap-3 rounded-xl bg-moss-pale px-3 py-2.5 text-sm transition-colors hover:bg-moss-pale/80"
+            >
+              <span className="mt-0.5 size-1.5 shrink-0 rounded-full bg-moss" />
+              <span className="leading-snug text-wood">{adventure.title}</span>
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-auto pt-2">
+          <Link
+            href="/adventures"
+            className="btn btn-outline btn-md w-full justify-center text-sm"
+          >
+            所有小冒險 →
+          </Link>
         </div>
       </div>
 
-      {/* Today's journey — above Explore the forest */}
+      {/* Right: Story */}
       {todaysTheme ? (
-        <section
-          className="relative border-y border-moss/25 bg-gradient-to-b from-moss-pale/90 via-moss-pale/70 to-paper/95 py-12 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.5)] md:py-16"
-          aria-label="Today's journey"
-        >
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-moss/8 to-transparent" aria-hidden />
-          <div className="relative mx-auto w-full max-w-3xl px-6 text-center md:px-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-moss/90 sm:text-xs">今日旅程</p>
-            <h2 className="mt-sp-2 font-heading text-2xl font-semibold text-wood sm:text-3xl md:text-4xl">
-              今天的故事
-            </h2>
-            <p className="mx-auto mt-sp-3 max-w-xl text-lg font-medium leading-relaxed text-wood sm:text-xl">
+        <div className="flex flex-col gap-sp-4 overflow-hidden rounded-2xl border-2 border-moss/40 bg-paper-card p-sp-6 shadow-[var(--shadow-paper)]">
+          <p className="text-[10px] uppercase tracking-[0.08em] text-wood-muted">
+            Today's story · 今日故事
+          </p>
+          <div>
+            <h3 className="font-heading text-lg font-medium text-wood">
+              Today's Story
+            </h3>
+            <p className="text-sm text-wood-muted">今日主題故事</p>
+          </div>
+          <p className="text-sm leading-relaxed text-wood">
+            Settle in together. Let Fina take you into today's forest world.
+          </p>
+          <p className="text-xs leading-relaxed text-wood-muted">
+            坐下來，跟著菲娜進入今天的故事。
+          </p>
+
+          {/* Today's theme */}
+          <div className="rounded-xl border border-border-card bg-moss-pale/50 px-4 py-3">
+            <p className="text-[10px] uppercase tracking-[0.08em] text-wood-muted">
+              Theme of the day · 今日主題
+            </p>
+            <p className="mt-1 font-heading text-base font-medium text-wood">
               {todaysTheme.title}
             </p>
-            <p className="mx-auto mt-sp-3 max-w-xl text-base leading-relaxed text-wood-muted sm:text-lg">
-              {todaysTheme.tagline}
-            </p>
-            <p className="mt-sp-4 text-xs text-wood-muted/90 sm:text-sm">故事 · 採集 · 煮湯 · 延伸閱讀</p>
-            <div className="mt-sp-8">
-              <Link
-                href={`/themes/${todaysThemeSlug}`}
-                className="inline-flex min-h-[3.25rem] w-full max-w-md items-center justify-center rounded-2xl border-2 border-moss/40 bg-moss px-6 py-sp-4 font-heading text-base font-semibold text-paper shadow-[0_8px_28px_-6px_rgba(45,90,65,0.45)] transition-[transform,box-shadow] hover:border-moss-hover hover:bg-moss-hover hover:shadow-[0_12px_32px_-8px_rgba(45,90,65,0.5)] focus:outline-none focus-visible:ring-2 focus-visible:ring-moss/50 focus-visible:ring-offset-2 focus-visible:ring-offset-moss-pale motion-reduce:transition-none sm:text-lg"
-              >
-                開始今天的旅程 →
-              </Link>
-            </div>
           </div>
-        </section>
+
+          <div className="mt-auto pt-2">
+            <Link
+              href={`/themes/${todaysThemeSlug}`}
+              className="inline-flex min-h-[2.75rem] w-full items-center justify-center rounded-2xl border-2 border-moss/40 bg-moss px-6 font-heading text-sm font-semibold text-paper shadow-[0_8px_28px_-6px_rgba(45,90,65,0.45)] transition-[transform,box-shadow] hover:border-moss-hover hover:bg-moss-hover sm:text-base"
+            >
+              開始今天的旅程 →
+            </Link>
+          </div>
+        </div>
       ) : null}
+
+    </div>
+  </div>
+</section>
 
       {/* 3. Explore section band */}
       <section id="explore" className="bg-paper-section py-12 md:py-14" aria-label="Explore the forest">
@@ -163,16 +205,10 @@ export default function HomePage() {
             <div className="space-y-2">
               <h2 className="font-heading text-xl font-medium text-wood md:text-2xl">
                 <span className="block">Explore the Forest</span>
-                <span className="mt-1 block text-lg font-normal text-wood-muted md:text-xl">
+                {/* <span className="mt-1 block text-lg font-normal text-wood-muted md:text-xl">
                   走進森林
-                </span>
+                </span> */}
               </h2>
-              <p className="text-sm leading-7 text-wood-muted md:text-base">
-                Follow a path into the forest.
-              </p>
-              <p className="text-sm leading-7 text-wood-muted/90 md:text-base">
-                跟著一條小路，慢慢走進森林裡。
-              </p>
             </div>
 
             <div className="grid grid-cols-1 gap-3">

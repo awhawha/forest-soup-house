@@ -50,19 +50,16 @@ export function SiteHeaderNav() {
   return (
     <div className="relative flex min-w-0 flex-1 items-center justify-end">
       <nav
-        className="hidden min-w-0 flex-1 flex-nowrap items-center gap-x-card-gap-sm lg:flex"
-        aria-label="Main navigation"
-      >
-        {/* Dropdown must not sit inside overflow-x-auto or the panel is clipped */}
-        <ForestWorldDropdown />
-        <div className="flex min-w-0 flex-1 flex-nowrap items-center justify-end gap-x-card-gap-sm overflow-x-auto scrollbar-hide">
-          {TOP_LEVEL_NAV_LINKS.map(({ href, label }) => (
-            <Link key={href} href={href} className={navLinkClass}>
-              {label}
-            </Link>
-          ))}
-        </div>
-      </nav>
+      className="hidden min-w-0 flex-1 flex-nowrap items-center justify-end gap-x-card-gap-sm lg:flex"
+      aria-label="Main navigation"
+    >
+      <ForestWorldDropdown />
+      {TOP_LEVEL_NAV_LINKS.map(({ href, label }) => (
+        <Link key={href} href={href} className={navLinkClass}>
+          {label}
+        </Link>
+      ))}
+    </nav>
 
       <button
         type="button"
