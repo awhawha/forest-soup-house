@@ -539,3 +539,17 @@
 /* 地圖：香氣粒子上飄、pin 呼吸 */
 @keyframes shhAroma { 0% { transform: translateY(0) scale(1); opacity: 0; } 25% { opacity: .85; } 100% { transform: translateY(-26px) scale(.7); opacity: 0; } }
 @keyframes shhBreathe { 0%, 100% { box-shadow: 0 0 0 0 rgba(240,170,90,.55); } 50% { box-shadow: 0 0 18px 6px rgba(240,170,90,.55); } }
+
+/* ═══════════ 湯湯屋 v2 native app keyframes ═══════════ */
+@keyframes nvIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes nvFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes nvSheet { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes nvSteam { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: .6; } 100% { transform: translateY(-46px); opacity: 0; } }
+@keyframes nvGlow { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes nvPop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.06); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes nvRipple { from { transform: translate(-50%,-50%) scale(.2); opacity: .7; } to { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+@keyframes nvGlowRing { 0%, 100% { box-shadow: inset 0 8px 26px rgba(70,40,10,.4), 0 0 0 0 rgba(240,190,90,0); } 50% { box-shadow: inset 0 8px 26px rgba(70,40,10,.4), 0 0 0 10px rgba(240,190,90,.3); } }
+/* Onboarding */
+@keyframes obIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes obPop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes obSteam { 0% { transform: translateY(0) scaleX(1); opacity: 0; } 15% { opacity: .55; } 100% { transform: translateY(-70px) scaleX(1.5); opacity: 0; } }

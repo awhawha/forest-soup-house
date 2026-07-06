@@ -92,3 +92,27 @@ npm run db:seed   # 把 data/*.ts 的所有內容匯入資料庫
 後台 → 設定 → `currentWeek` 改成新的數字（1–10）。系統會找 `weekNumber` 等於該數字的主題包當本週。前台重新整理即生效：採集袋換新三樣、香氣移到新地點、上週卡片變「錯過的一週」、圖鑑跨週累積、晾曬架不動。
 
 第幾週對應哪個主題包，在該主題包編輯頁的「第幾週」欄位設定（1–10，不可重複；留空＝不排入週主線）。
+
+---
+
+# v2 native app（四分頁重製，branch: v2-native-app）
+
+2026-07-05 依 `design_handoff_v2` 把前台重製為原生 app 風格。**內容資料模型沿用主題包，不動後台既有結構**，只加了材料的採集欄位與新增本機週進度。
+
+## 前台結構（全部在單一路由 `/`）
+- **Onboarding 1b**：第一次啟動、本機沒有小孩檔案 → 菲娜對話收 name/age/companion，寫入 `Profile`（localStorage `soupHouseProfileV1`）。
+- **底部四分頁**：今天 / 森林 / 湯鍋 / 紀念冊，＋全螢幕覆蓋層（採集相機、煮湯儀式、大人的門、獎勵彈窗、toast）。
+- **採集相機**：每樣材料可「拍照」或「用說的」（三選項，皆為正解）。拍照存 IndexedDB，即時寫入週進度。
+- **煮湯儀式**：放三樣料 → 壓住湯面畫圈攪拌，stir 到 100 → 寫 `cookedAt`（＝發徽章）→ 獎勵彈窗。
+- **徽章**：不另建表，`cookedAt != null` ⟺ 該週徽章已得，徽章名取主題包 `badgeName`。
+- 舊 v1 網址（/story、/map、/pot、/friends、/world…）都 redirect 回 `/`。/print 保留。
+
+## 資料對接
+- 週內容全部來自後台**主題包**（title=湯名、badgeName=徽章、letter、materials=主題材料）。
+- 目前週次讀設定 `currentWeek`。
+- **材料新增欄位**（後台「主題材料」可編）：`guide` 出門引導、`example` 拍照提示、`question` 用說的問題、`options` 三選項、`colorSolid` 主色。30 個材料的文案已由 `prisma/material-copy.json` seed（`npx tsx prisma/seed-material.ts`）。
+
+## 孩子的進度存哪（本機、無帳號）
+- `Profile`（soupHouseProfileV1）：name/age/companion。
+- `WeekProgress`（soupHouseWeekProgressV1）：每週 storyDone / found[3] / cookedAt / craftDone / printedAt。
+- 照片：IndexedDB。清瀏覽器資料會歸零。資料層在 `lib/client/{profile,weekProgress}.ts`。

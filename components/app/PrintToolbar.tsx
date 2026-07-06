@@ -1,34 +1,37 @@
 "use client";
 
-/**
- * 手作列印頁頂部工具列（列印時以 .shh-no-print 隱藏）。
- * 樣式 1:1 依 design handoff（湯湯屋-手作列印頁.dc.html）。
- */
 import Link from "next/link";
 
+/** 手作列印頁頂部工具列（列印時隱藏）。 */
 export function PrintToolbar() {
   return (
     <div
       className="shh-no-print"
       style={{
-        maxWidth: 520, margin: "0 auto 18px", display: "flex", alignItems: "center",
-        justifyContent: "space-between", gap: 12, padding: "0 20px",
+        maxWidth: "210mm",
+        margin: "0 auto 16px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 8px",
       }}
     >
-      <Link
-        href="/"
-        style={{ textDecoration: "none", fontSize: 13, color: "#6b5a44", fontWeight: 500 }}
-      >
+      <Link href="/" style={{ fontSize: 13, color: "#5b4a35", textDecoration: "none" }}>
         ← 回湯湯屋
       </Link>
       <button
         type="button"
         onClick={() => window.print()}
         style={{
-          border: "none", cursor: "pointer", background: "#3f7a4a",
-          fontFamily: "var(--font-noto-serif), 'Noto Serif TC', serif",
-          fontWeight: 600, fontSize: 15, color: "#faf4e6", padding: "12px 24px",
-          borderRadius: 14, boxShadow: "0 10px 24px -8px rgba(45,90,65,.5)",
+          border: "none",
+          cursor: "pointer",
+          background: "#3f7a4a",
+          color: "#faf4e6",
+          fontFamily: "inherit",
+          fontWeight: 700,
+          fontSize: 13.5,
+          padding: "9px 20px",
+          borderRadius: 12,
         }}
       >
         列印這一頁

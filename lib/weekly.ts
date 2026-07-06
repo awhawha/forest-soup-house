@@ -16,7 +16,14 @@ export interface WeekIngredient {
   glyph: string;
   tile: string;
   gradient: string;
+  /** 材料主色（hex），完成畫面/煮湯 token glyph 用 */
+  colorSolid: string;
   scent: string;
+  // ── v2 採集相機 ──
+  guide: string;
+  example: string;
+  question: string;
+  options: string[];
 }
 
 export interface WeekBundle {
@@ -126,7 +133,12 @@ function toWeekIngredients(theme: ThemeWithChildren): WeekIngredient[] {
       glyph: ing.glyph ?? ing.name.slice(0, 1),
       tile: ing.tile ?? "#e8ddc2",
       gradient: ing.gradient ?? "radial-gradient(circle at 40% 35%,#e0cfa8,#b59a5f)",
+      colorSolid: ing.colorSolid ?? ing.tile ?? "#b59a5f",
       scent: ing.scent ?? ing.description,
+      guide: ing.guide ?? ing.description,
+      example: ing.example ?? `拍下你找到的${ing.name}`,
+      question: ing.question ?? `說說看，${ing.name}讓你想到什麼？`,
+      options: (ing.options as string[] | null) ?? ["說說看", "再想想", "問問大人"],
     }));
 }
 
@@ -254,6 +266,47 @@ export const getResidents = cache(async (): Promise<Resident[]> => {
     gradient: r.avatarGradient,
     image: r.image,
   }));
+});
+
+// ── 森林 tab 的地點卡（用現有 DB 地點）──
+export interface ForestPlace {
+  slug: string;
+  name: string;
+  sub: string;
+  glyph: string;
+  image: string | null;
+  /** 住在這裡的朋友頭像（有的話） */
+  friendImage: string | null;
+  friendGradient: string | null;
+  /** 此地點是不是本週材料的採集點 */
+  isThisWeek: boolean;
+}
+
+export const getForestPlaces = cache(async (): Promise<ForestPlace[]> => {
+  const [locations, residents, week] = await Promise.all([
+    prisma.location.findMany({ orderBy: { sortOrder: "asc" } }),
+    prisma.character.findMany({ where: { locationSlug: { not: null } } }),
+    getWeekBundle(),
+  ]);
+  const residentByLoc = new Map(residents.map((r) => [r.locationSlug, r]));
+  const weekLocSlugs = new Set((week?.ingredients ?? []).map((i) => i.locationSlug));
+  // v2 森林完全開放（無鎖）：本週採集點優先，其餘依序補滿，最多 6 張
+  const thisWeek = locations.filter((l) => weekLocSlugs.has(l.slug));
+  const rest = locations.filter((l) => !weekLocSlugs.has(l.slug));
+  const picked = [...thisWeek, ...rest].slice(0, 6);
+  return picked.map((l) => {
+    const r = residentByLoc.get(l.slug);
+    return {
+      slug: l.slug,
+      name: l.name,
+      sub: l.tagline,
+      glyph: l.glyph ?? l.name.slice(0, 1),
+      image: l.image,
+      friendImage: r?.image ?? null,
+      friendGradient: r?.avatarGradient ?? null,
+      isThisWeek: weekLocSlugs.has(l.slug),
+    };
+  });
 });
 
 export const getPotRecipes = cache(async (): Promise<PotRecipeInfo[]> => {

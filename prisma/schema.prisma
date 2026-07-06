@@ -140,8 +140,19 @@ model ThemeIngredient {
   tile         String?
   /** 材料圓塊漸層（CSS radial-gradient） */
   gradient     String?
+  /** 材料主色（hex，完成畫面/煮湯 token 用；未填則從 tile 取） */
+  colorSolid   String?
   /** 香味一句話（像曬過太陽的棉被） */
   scent        String?
+  // ── v2 採集相機用 ──
+  /** 出門引導：叫孩子找什麼、怎麼互動 */
+  guide        String?
+  /** 拍照框提示文（例：拍下你找到的花） */
+  example      String?
+  /** 「用說的」問題（開放題，無標準答案） */
+  question     String?
+  /** 三個選項（皆為正解，對話引子）；string[] */
+  options      Json?
   sortOrder    Int    @default(0)
 
   @@unique([themeSlug, slug])

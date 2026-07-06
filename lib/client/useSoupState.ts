@@ -7,7 +7,7 @@
  * 用法：const cooked = useSoupState(getCooked, 0);
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { SOUP_CHANGED } from "@/lib/client/pantry";
+import { SOUP_CHANGED } from "@/lib/client/weekProgress";
 
 function useSoupStateInternal<T>(
   readFn: () => T,
