@@ -290,11 +290,8 @@ export const getForestPlaces = cache(async (): Promise<ForestPlace[]> => {
   ]);
   const residentByLoc = new Map(residents.map((r) => [r.locationSlug, r]));
   const weekLocSlugs = new Set((week?.ingredients ?? []).map((i) => i.locationSlug));
-  // v2 森林完全開放（無鎖）：本週採集點優先，其餘依序補滿，最多 6 張
-  const thisWeek = locations.filter((l) => weekLocSlugs.has(l.slug));
-  const rest = locations.filter((l) => !weekLocSlugs.has(l.slug));
-  const picked = [...thisWeek, ...rest].slice(0, 6);
-  return picked.map((l) => {
+  // v2 森林完全開放（無鎖）：直接抓後台全部地點，照後台排序，不砍數量、不依週重排
+  return locations.map((l) => {
     const r = residentByLoc.get(l.slug);
     return {
       slug: l.slug,

@@ -435,7 +435,9 @@ export function AppShell({ week, weekCards, residents, places }: AppShellProps) 
       {/* ═══ 覆蓋層 ═══ */}
       {capture !== null ? (
         <CaptureOverlay
+          key={capture}
           material={week.ingredients[capture]}
+          materials={week.ingredients}
           index={capture}
           progress={progress}
           onFound={onFound}
