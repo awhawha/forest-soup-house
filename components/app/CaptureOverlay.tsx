@@ -181,23 +181,25 @@ export function CaptureOverlay({
         )}
       </div>
 
-      {/* 底部動作 */}
-      <div style={{ flexShrink: 0, padding: "12px 16px 30px", display: "flex", flexDirection: "column", gap: 10 }}>
-        {showDone ? (
-          <>
-            <button onClick={onNext} style={ctaStyle}>{ctaLabel}</button>
-            {captured!.kind === "photo" ? (
-              <button onClick={() => setChooser(true)} style={secondaryStyle}>重新拍一張</button>
-            ) : (
-              <button onClick={() => { setEditing(true); setMode("answer"); }} style={secondaryStyle}>換一個答案</button>
-            )}
-          </>
-        ) : mode === "photo" ? (
-          <button onClick={() => setMode("answer")} style={secondaryStyle}>不方便出門？用說的也可以</button>
-        ) : (
-          <button onClick={() => setMode("photo")} style={secondaryStyle}>還是想拍拍看</button>
-        )}
-      </div>
+      {/* 底部動作（拍照模式的「用說的」已移進取景框選單，故此列不顯示） */}
+      {showDone || mode === "answer" ? (
+        <div style={{ flexShrink: 0, padding: "12px 16px 30px", display: "flex", flexDirection: "column", gap: 10 }}>
+          {showDone ? (
+            <>
+              <button onClick={onNext} style={ctaStyle}>{ctaLabel}</button>
+              {captured!.kind === "photo" ? (
+                <button onClick={() => setChooser(true)} style={secondaryStyle}>重新拍一張</button>
+              ) : (
+                <button onClick={() => { setEditing(true); setMode("answer"); }} style={secondaryStyle}>換一個答案</button>
+              )}
+            </>
+          ) : (
+            <button onClick={() => setMode("photo")} style={secondaryStyle}>還是想拍拍看</button>
+          )}
+        </div>
+      ) : (
+        <div style={{ height: 22, flexShrink: 0 }} />
+      )}
 
       {/* 拍照／相簿 選單 */}
       {chooser ? (
@@ -205,7 +207,7 @@ export function CaptureOverlay({
           <div onClick={() => setChooser(false)} style={{ position: "absolute", inset: 0, background: "rgba(40,30,15,.45)", animation: "nvFade .2s ease-out" }} />
           <div style={{ position: "relative", background: "#fbf5e6", borderRadius: "24px 24px 0 0", padding: "16px 18px 30px", animation: "nvSheet .28s ease-out", boxShadow: "0 -12px 40px -12px rgba(60,40,20,.4)" }}>
             <div style={{ width: 40, height: 5, borderRadius: 3, background: "#d8c9a4", margin: "0 auto 16px" }} />
-            <p style={{ ...serifTC, fontWeight: 700, fontSize: 16, color: "#3a2f22", textAlign: "center", margin: "0 0 14px" }}>要怎麼放上這張照片？</p>
+            <p style={{ ...serifTC, fontWeight: 700, fontSize: 16, color: "#3a2f22", textAlign: "center", margin: "0 0 14px" }}>要怎麼記下這一樣？</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {/* 拍照：直接開後鏡頭 */}
               <label style={{ ...sourceBtn, background: "#3f7a4a", color: "#faf4e6", border: "none" }}>
@@ -217,6 +219,10 @@ export function CaptureOverlay({
                 🖼　從相簿選一張
                 <input type="file" accept="image/*" hidden onChange={(e) => handleFile(e.target.files?.[0])} />
               </label>
+              {/* 用說的（不方便出門時） */}
+              <button onClick={() => { setChooser(false); setMode("answer"); }} style={sourceBtn}>
+                💬　不方便出門？用說的
+              </button>
               <button onClick={() => setChooser(false)} style={{ ...sourceBtn, background: "transparent", border: "none", color: "#8a7659", height: 48 }}>取消</button>
             </div>
           </div>
