@@ -1,0 +1,184 @@
+// Forest Soup House — content database（Supabase PostgreSQL）
+// DATABASE_URL：transaction pooler（給 app 用，port 6543）
+// DIRECT_URL：session/direct 連線（給 migrate 用，port 5432）
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Character {
+  slug             String  @id
+  name             String
+  nameZh           String?
+  tagline          String
+  taglineZh        String?
+  bio              String?
+  bioZh            String?
+  quote            String?
+  quoteZh          String?
+  quoteAttribution String?
+  image            String?
+  links            Json? // [{ label, href }]
+  // ── 住戶（朋友們頁）──
+  /** 住在哪個地點（對應 Location.slug） */
+  locationSlug     String?
+  /** 煮到第幾鍋認識（1-9；null = 不在住戶名單） */
+  unlockAtPot      Int?
+  /** 一句台詞（朋友們頁顯示） */
+  introLine        String?
+  /** 頭像底色漸層（CSS radial-gradient，無照片時使用） */
+  avatarGradient   String?
+  sortOrder        Int     @default(0)
+}
+
+model Location {
+  slug        String  @id
+  name        String
+  nameEn      String
+  emoji       String
+  tagline     String
+  description String
+  atmosphere  String
+  image       String?
+  status      String // "open" | "coming-soon"
+  href        String?
+  // ── 森林地圖 pin ──
+  /** 地圖 pin 的單字（草、河、森⋯） */
+  glyph       String?
+  /** 地圖座標（% 0-100） */
+  mapX        Float?
+  mapY        Float?
+  /** 煮到第幾鍋解鎖（0 = 一開始就亮＝我們的家；1-9 依序） */
+  unlockAtPot Int?
+  sortOrder   Int     @default(0)
+}
+
+model Adventure {
+  slug          String @id
+  location      String
+  locationEn    String
+  character     String
+  characterEn   String
+  title         String
+  titleEn       String
+  description   String
+  descriptionEn String
+  parentNote    String
+  finaQuote     String
+  finaResponse  String
+  sortOrder     Int    @default(0)
+}
+
+// 首頁「今日小冒險」卡片（slug 對應 Adventure.slug）
+model TodaysAdventure {
+  id              String  @id
+  slug            String
+  title           String
+  titleZh         String?
+  prompt          String
+  promptZh        String?
+  narrative       String?
+  narrativeZh     String?
+  characterName   String?
+  characterNameZh String?
+  location        String?
+  locationZh      String?
+  sortOrder       Int     @default(0)
+}
+
+model Theme {
+  slug                   String  @id
+  // ── 週更主線：一個主題包 = 一週 = 一碗湯 ──
+  /** 第幾週（1-N；決定週序）。null = 不排入週主線 */
+  weekNumber             Int?    @unique
+  /** 菲娜的信（門縫下的信；\n 分行）。排入週次才需要 */
+  letter                 String?
+  title                  String
+  tagline                String
+  image                  String?
+  storyContent           String
+  audioSrc               String?
+  magicSubtitleZh        String?
+  magicParagraphsZh      Json? // string[]
+  magicParagraphsEn      Json? // string[]
+  magicImageSrc          String?
+  magicImageAlt          String?
+  adventureTitle         String
+  adventureDescription   String
+  craftTitle             String
+  craftDescription       String
+  badgeName              String
+  parentNoteTheme        String
+  parentNoteSkills       Json // string[]
+  parentNoteTalkingPoint String
+  sortOrder              Int     @default(0)
+
+  ingredients ThemeIngredient[]
+  books       ThemeBook[]
+}
+
+model ThemeIngredient {
+  id           Int    @id @default(autoincrement())
+  themeSlug    String
+  theme        Theme  @relation(fields: [themeSlug], references: [slug], onDelete: Cascade)
+  slug         String
+  name         String
+  description  String
+  locationSlug String
+  locationName String
+  collection   Json // CollectionChallenge（choice / riddle / secret）
+  // ── 採集視覺（地圖採集袋 / 圖鑑 / 煮湯動畫用）──
+  /** 材料圓塊上的單字（花、包、甜⋯） */
+  glyph        String?
+  /** 圖鑑格底色（hex） */
+  tile         String?
+  /** 材料圓塊漸層（CSS radial-gradient） */
+  gradient     String?
+  /** 香味一句話（像曬過太陽的棉被） */
+  scent        String?
+  sortOrder    Int    @default(0)
+
+  @@unique([themeSlug, slug])
+}
+
+// ── 湯鍋（日常廚房）「找到的食譜」 ──
+model PotRecipe {
+  slug            String @id
+  name            String
+  /** 需要的材料 slug（對應 ThemeIngredient.slug） */
+  ingredientSlugs Json // string[]
+  image           String?
+  /** 煮好後顯示的一句話 */
+  flavorText      String?
+  sortOrder       Int    @default(0)
+}
+
+// ── 全站設定（currentWeek 等） ──
+model Setting {
+  key   String @id
+  value String
+}
+
+model ThemeBook {
+  id        Int    @id @default(autoincrement())
+  themeSlug String
+  theme     Theme  @relation(fields: [themeSlug], references: [slug], onDelete: Cascade)
+  title     String
+  author    String
+  reason    String
+  sortOrder Int    @default(0)
+}
+
+// 湯湯屋主屋的每日隨機文案（Fina 狀態、每日提問、Poffy 插話、天氣氛圍）
+model AmbientText {
+  id        Int    @id @default(autoincrement())
+  kind      String // "fina-activity" | "daily-question" | "poffy-quote" | "weather-mood"
+  text      String
+  sortOrder Int    @default(0)
+}

@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Lora } from "next/font/google";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
+import { Lora, Noto_Sans_TC, Noto_Serif_TC } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -21,9 +19,21 @@ const lora = Lora({
   weight: ["400", "500", "600"],
 });
 
+const notoSerifTC = Noto_Serif_TC({
+  variable: "--font-noto-serif",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
+const notoSansTC = Noto_Sans_TC({
+  variable: "--font-noto-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "Forest Soup House",
-  description: "A gentle story world where soup is magic. For children and families.",
+  title: "湯湯屋 Forest Soup House",
+  description: "親子沉浸式週更故事體驗。每週一鍋故事湯，螢幕是起點，體驗在真實世界。",
 };
 
 export default function RootLayout({
@@ -32,22 +42,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="zh-Hant">
       {/*
         suppressHydrationWarning: browser extensions (e.g. Grammarly) inject
-        attributes like data-gr-ext-installed into <body> at runtime, causing
-        a server/client HTML mismatch. This prop silences that false positive.
-        It only suppresses warnings one level deep — child components are unaffected.
+        attributes into <body> at runtime, causing a false-positive mismatch.
       */}
       <body
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} antialiased min-h-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} ${notoSerifTC.variable} ${notoSansTC.variable} antialiased`}
       >
-        <SiteHeader />
-        <main className="box-border min-h-0 flex-1 bg-paper pt-[var(--site-header-offset)]">
-          {children}
-        </main>
-        <SiteFooter />
+        {children}
       </body>
     </html>
   );

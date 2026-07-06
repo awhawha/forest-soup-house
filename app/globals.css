@@ -509,3 +509,33 @@
       0 0 0 4px color-mix(in srgb, var(--world-cta) 50%, transparent);
   }
 }
+
+/* ═══════════ 湯湯屋 v2 · 週更體驗（design handoff tokens + keyframes）═══════════ */
+
+:root {
+  --shh-bg: #f4ead2;
+  --shh-card: #fbf5e6;
+  --shh-green: #3f7a4a;
+  --shh-amber: #c9793a;
+  --shh-amber-2: #c47a3a;
+  --shh-ink: #3a2f22;
+  --shh-body: #493d31;
+  --shh-muted: #8a7659;
+  --shh-muted-2: #a08a68;
+  --shh-border: #ecdcb8;
+  --shh-border-2: #e0cfa8;
+  --shh-dashed: #d8c49a;
+  --shh-stone: #b9a7cf;
+}
+
+@keyframes shhSteam { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: .6; } 100% { transform: translateY(-40px); opacity: 0; } }
+@keyframes shhIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes shhGlow { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes shhPulse { 0%, 100% { box-shadow: 0 12px 30px -10px rgba(45,90,65,.5); } 50% { box-shadow: 0 16px 40px -8px rgba(45,90,65,.7); } }
+@keyframes shhSway { 0%, 100% { transform: rotate(-3.5deg); } 50% { transform: rotate(3.5deg); } }
+@keyframes jbFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes jbUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes jbPop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.12); } 100% { transform: scale(1); opacity: 1; } }
+/* 地圖：香氣粒子上飄、pin 呼吸 */
+@keyframes shhAroma { 0% { transform: translateY(0) scale(1); opacity: 0; } 25% { opacity: .85; } 100% { transform: translateY(-26px) scale(.7); opacity: 0; } }
+@keyframes shhBreathe { 0%, 100% { box-shadow: 0 0 0 0 rgba(240,170,90,.55); } 50% { box-shadow: 0 0 18px 6px rgba(240,170,90,.55); } }
