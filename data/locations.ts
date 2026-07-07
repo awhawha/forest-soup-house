@@ -44,10 +44,9 @@ export const locations: Location[] = [
     status: "open",
   },
   {
-    // v3：原「悄悄耳語小屋」改成「湯料魔法研究所」。
-    // slug 沿用 whisper-shed，讓已 seed 的正式資料庫原地更新、不用搬遷；
-    // 森林分頁的路由把 whisper-shed（與 magic-lab）都導到 lab 覆蓋層。
-    slug: "whisper-shed",
+    // v3：原「悄悄耳語小屋」(whisper-shed) 已在後台刪除，改成這個「湯料魔法研究所」。
+    // 森林分頁的路由 PLACE_BY_SLUG 把 magic-lab（與 legacy whisper-shed）都導到 lab 覆蓋層。
+    slug: "magic-lab",
     name: "湯料魔法研究所",
     nameEn: "Soup Magic Lab",
     emoji: "🧫",
