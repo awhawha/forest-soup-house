@@ -18,6 +18,7 @@ import {
   setStoryDone,
   resetWeek as resetWeekProgress,
   cookedWeeksCount,
+  cookedWeekNumbers,
   type Capture,
 } from "@/lib/client/weekProgress";
 import { getProfile } from "@/lib/client/profile";
@@ -26,6 +27,23 @@ import { serifTC } from "@/components/app/PhoneFrame";
 import { PhotoImg } from "@/components/app/PhotoImg";
 import { CaptureOverlay } from "@/components/app/CaptureOverlay";
 import { CookRitual } from "@/components/app/CookRitual";
+import { StoryOverlay } from "@/components/app/StoryOverlay";
+import { ForestPlaceLayer, type PlaceKey } from "@/components/app/ForestPlaceLayer";
+
+// 森林卡片（後台地點 slug）→ 地點覆蓋層 / 直接採集 / 尚未做（toast）
+const PLACE_BY_SLUG: Record<string, PlaceKey | "gather"> = {
+  "soup-house": "house",
+  "herbal-patch": "garden",
+  "observation-post": "station",
+  "soupling-stream": "river",
+  "brewing-shed": "shed",
+  "forest-post": "post",
+  "soup-lore-stone": "stone",
+  "character-grove": "grove",
+  "whisper-shed": "lab", // v3：原耳語小屋改成研究所（slug 沿用）
+  "magic-lab": "lab",
+  "ingredient-woods": "gather",
+};
 
 interface AppShellProps {
   week: WeekBundle;
@@ -46,8 +64,11 @@ export function AppShell({ week, weekCards, residents, places }: AppShellProps) 
   const progress = useSoupState(() => getWeekProgress(week.weekNumber), emptyProgress());
   const profile = useSoupState(getProfile, null);
   const kidName = profile?.name ?? null;
+  const cookedWeeks = useSoupState(cookedWeekNumbers, []);
 
   const [tab, setTab] = useState<Tab>("today");
+  const [place, setPlace] = useState<PlaceKey | null>(null);
+  const [story, setStory] = useState(false);
   const [capture, setCapture] = useState<number | null>(null);
   const [cookOpen, setCookOpen] = useState(false);
   const [grownOpen, setGrownOpen] = useState(false);
@@ -69,20 +90,25 @@ export function AppShell({ week, weekCards, residents, places }: AppShellProps) 
   };
 
   // ── 動作 ──
-  const doStory = () => {
-    if (!progress.storyDone) {
-      setStoryDone(week.weekNumber);
-      showToast("故事聽完了。隨時可以再聽一次。");
-    } else {
-      showToast("這週的故事聽過了，隨時可以再聽一次");
-    }
+  // 聽故事（全螢幕繪本）；地點覆蓋層之上，關閉不影響底下的地點
+  const openStory = () => {
+    setStory(true);
+    setGrownOpen(false);
   };
+  const doStory = openStory;
+  // 森林地點覆蓋層
+  const openPlace = (p: PlaceKey) => {
+    setPlace(p);
+    setGrownOpen(false);
+  };
+  const closePlace = () => setPlace(null);
   const openGather = () => setCapture(Math.max(0, firstUnfound(progress)));
   const onFound = (i: number, cap: Capture) => setFound(week.weekNumber, i, cap);
   const capNext = () => {
     const n = firstUnfound(getWeekProgress(week.weekNumber));
     if (n === -1) {
       setCapture(null);
+      setPlace(null);
       setTab("today");
     } else {
       setCapture(n);
@@ -240,7 +266,12 @@ export function AppShell({ week, weekCards, residents, places }: AppShellProps) 
             {places.map((pl) => (
               <button
                 key={pl.slug}
-                onClick={() => (pl.isThisWeek ? openGather() : showToast(`到${pl.name}走走看看`))}
+                onClick={() => {
+                  const target = PLACE_BY_SLUG[pl.slug];
+                  if (target === "gather") openGather();
+                  else if (target) openPlace(target);
+                  else showToast(`到${pl.name}走走看看`);
+                }}
                 style={{ border: "1px solid #e0dcbc", cursor: "pointer", background: "#fffcf3", borderRadius: 20, padding: 0, overflow: "hidden", textAlign: "left", fontFamily: "inherit", boxShadow: "0 10px 24px -18px rgba(60,80,40,.6)", animation: "nvIn .4s ease-out", position: "relative" }}
               >
                 <span style={{ display: "block", height: 96, background: "#dde3ca", position: "relative" }}>
@@ -423,7 +454,7 @@ export function AppShell({ week, weekCards, residents, places }: AppShellProps) 
         ] as const).map((tb) => {
           const active = tab === tb.id;
           return (
-            <button key={tb.id} onClick={() => { setTab(tb.id); closeGrown(); }} style={{ border: "none", background: "transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, fontFamily: "inherit", padding: 0, position: "relative" }}>
+            <button key={tb.id} onClick={() => { setTab(tb.id); setPlace(null); setStory(false); closeGrown(); }} style={{ border: "none", background: "transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, fontFamily: "inherit", padding: 0, position: "relative" }}>
               {tb.dot ? <span style={{ position: "absolute", top: 2, right: "26%", width: 8, height: 8, borderRadius: "50%", background: "#c47a3a" }} /> : null}
               <span style={{ ...serifTC, width: 44, height: 30, borderRadius: 999, background: active ? "#e4d6ae" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 15, color: active ? "#3a2f22" : "#a0906c", transition: "background .2s" }}>{tb.glyph}</span>
               <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, color: active ? "#3a2f22" : "#a0906c" }}>{tb.label}</span>
@@ -431,6 +462,36 @@ export function AppShell({ week, weekCards, residents, places }: AppShellProps) 
           );
         })}
       </div>
+
+      {/* ═══ 森林地點覆蓋層（z-15，露出底部分頁）═══ */}
+      {place !== null ? (
+        <ForestPlaceLayer
+          key={place}
+          place={place}
+          week={week}
+          weekCards={weekCards}
+          progress={progress}
+          cookedWeeks={cookedWeeks}
+          onClose={closePlace}
+          onOpenStory={openStory}
+          onOpenGather={openGather}
+          onGoPot={() => { setPlace(null); setTab("pot"); }}
+          onGoBook={() => { setPlace(null); setTab("book"); }}
+          onToast={showToast}
+        />
+      ) : null}
+
+      {/* ═══ 聽故事（z-42，全螢幕）═══ */}
+      {story ? (
+        <StoryOverlay
+          soupName={week.soupName}
+          subtitle={week.magicSubtitleZh}
+          paragraphs={week.paragraphs}
+          audioSrc={week.audioSrc}
+          onComplete={() => setStoryDone(week.weekNumber)}
+          onClose={() => setStory(false)}
+        />
+      ) : null}
 
       {/* ═══ 覆蓋層 ═══ */}
       {capture !== null ? (

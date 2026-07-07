@@ -44,16 +44,19 @@ export const locations: Location[] = [
     status: "open",
   },
   {
+    // v3：原「悄悄耳語小屋」改成「湯料魔法研究所」。
+    // slug 沿用 whisper-shed，讓已 seed 的正式資料庫原地更新、不用搬遷；
+    // 森林分頁的路由把 whisper-shed（與 magic-lab）都導到 lab 覆蓋層。
     slug: "whisper-shed",
-    name: "悄悄耳語小屋",
-    nameEn: "Whisper Shed",
-    emoji: "🌙",
-    tagline: "寫下你的心事，森林會幫你保管。",
+    name: "湯料魔法研究所",
+    nameEn: "Soup Magic Lab",
+    emoji: "🧫",
+    tagline: "里洛的實驗室，沒有失敗這回事。",
     description:
-      "小屋裡有一本厚厚的冊子，等你寫下心事；墨水乾了以後，字跡會變成森林裡一縷幾乎聽不見的風聲，只屬於你和紙筆。",
+      "架上排滿一罐罐咕嘟冒泡的湯液，每一種味道都被認真地聞過、記下來；里洛說，把兩種香味搖一搖，就會變出誰也沒聞過的新味道。",
     atmosphere:
-      "安靜、被包覆的感覺，像躲進樹洞裡；月光從窗框灑進來時，連呼吸都會變得輕一點。",
-    status: "coming-soon",
+      "好奇又安心的氣氛，像打翻了也不會被罵的廚房；玻璃罐折射出彩色的光，讓人忍不住想再試一次。",
+    status: "open",
   },
   {
     slug: "brewing-shed",

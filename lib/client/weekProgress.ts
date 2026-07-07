@@ -129,6 +129,16 @@ export function cookedWeeksCount(): number {
   return Object.values(store).filter((p) => p.cookedAt != null).length;
 }
 
+/** 已煮好的週次清單（魔法湯譜石亮起哪幾塊紋樣用） */
+export function cookedWeekNumbers(): number[] {
+  const store = readStore();
+  return Object.entries(store)
+    .filter(([, p]) => p.cookedAt != null)
+    .map(([k]) => parseInt(k, 10))
+    .filter((n) => !Number.isNaN(n))
+    .sort((a, b) => a - b);
+}
+
 /** 這週湯卡是否已擁有（煮過） */
 export function isCooked(week: number): boolean {
   return getWeekProgress(week).cookedAt != null;
