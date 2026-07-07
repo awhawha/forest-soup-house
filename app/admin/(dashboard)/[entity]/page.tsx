@@ -22,13 +22,15 @@ export default async function EntityListPage({ params, searchParams }: PageProps
   )[entity.model];
   const rows = await delegate.findMany({
     orderBy:
-      entity.slug === "theme-ingredients" || entity.slug === "theme-books"
+      entity.slug === "theme-books"
         ? [{ themeSlug: "asc" }, { sortOrder: "asc" }]
-        : entity.slug === "ambient-texts"
-          ? [{ kind: "asc" }, { sortOrder: "asc" }]
-          : entity.slug === "themes"
-            ? [{ weekNumber: "asc" }, { sortOrder: "asc" }]
-            : { sortOrder: "asc" },
+        : entity.slug === "ingredients"
+          ? { name: "asc" }
+          : entity.slug === "ambient-texts"
+            ? [{ kind: "asc" }, { sortOrder: "asc" }]
+            : entity.slug === "themes"
+              ? [{ weekNumber: "asc" }, { sortOrder: "asc" }]
+              : { sortOrder: "asc" },
   });
 
   return (

@@ -134,20 +134,26 @@ async function main() {
       update: data,
     });
 
-    // 子表：先清掉再重建，確保與 data 檔一致
+    // 子表：材料改成材料庫共用 → 先 upsert 材料庫，再重建這碗湯的關聯
     await prisma.themeIngredient.deleteMany({ where: { themeSlug: t.slug } });
-    await prisma.themeIngredient.createMany({
-      data: t.ingredients.map((ing, j) => ({
-        themeSlug: t.slug,
-        slug: ing.slug,
+    for (let j = 0; j < t.ingredients.length; j++) {
+      const ing = t.ingredients[j];
+      const material = {
         name: ing.name,
         description: ing.description,
         locationSlug: ing.locationSlug,
         locationName: ing.locationName,
         collection: ing.collection as unknown as Prisma.InputJsonValue,
-        sortOrder: j,
-      })),
-    });
+      };
+      await prisma.ingredient.upsert({
+        where: { slug: ing.slug },
+        create: { slug: ing.slug, ...material },
+        update: material,
+      });
+      await prisma.themeIngredient.create({
+        data: { themeSlug: t.slug, ingredientSlug: ing.slug, sortOrder: j },
+      });
+    }
 
     await prisma.themeBook.deleteMany({ where: { themeSlug: t.slug } });
     await prisma.themeBook.createMany({

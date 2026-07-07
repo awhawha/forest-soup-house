@@ -113,33 +113,43 @@ function splitParagraphs(text: string): string[] {
     .filter(Boolean);
 }
 
+// 材料改成材料庫共用：主題透過 ThemeIngredient 關聯 Ingredient（材料本體）。
+const themeInclude = {
+  ingredients: { include: { ingredient: true }, orderBy: { sortOrder: "asc" } },
+  books: true,
+} as const;
+
 type ThemeWithChildren = NonNullable<
   Awaited<
-    ReturnType<
-      typeof prisma.theme.findFirst<{ include: { ingredients: true; books: true } }>
-    >
+    ReturnType<typeof prisma.theme.findFirst<{ include: typeof themeInclude }>>
   >
 >;
 
 function toWeekIngredients(theme: ThemeWithChildren): WeekIngredient[] {
   return [...theme.ingredients]
     .sort((a, b) => a.sortOrder - b.sortOrder)
-    .map((ing) => ({
-      slug: ing.slug,
-      name: ing.name,
-      description: ing.description,
-      locationSlug: ing.locationSlug,
-      locationName: ing.locationName,
-      glyph: ing.glyph ?? ing.name.slice(0, 1),
-      tile: ing.tile ?? "#e8ddc2",
-      gradient: ing.gradient ?? "radial-gradient(circle at 40% 35%,#e0cfa8,#b59a5f)",
-      colorSolid: ing.colorSolid ?? ing.tile ?? "#b59a5f",
-      scent: ing.scent ?? ing.description,
-      guide: ing.guide ?? ing.description,
-      example: ing.example ?? `拍下你找到的${ing.name}`,
-      question: ing.question ?? `說說看，${ing.name}讓你想到什麼？`,
-      options: (ing.options as string[] | null) ?? ["說說看", "再想想", "問問大人"],
-    }));
+    .flatMap((link) => {
+      const ing = link.ingredient;
+      if (!ing) return []; // 關聯到已刪除的材料，略過
+      return [
+        {
+          slug: ing.slug,
+          name: ing.name,
+          description: ing.description,
+          locationSlug: ing.locationSlug,
+          locationName: ing.locationName,
+          glyph: ing.glyph ?? ing.name.slice(0, 1),
+          tile: ing.tile ?? "#e8ddc2",
+          gradient: ing.gradient ?? "radial-gradient(circle at 40% 35%,#e0cfa8,#b59a5f)",
+          colorSolid: ing.colorSolid ?? ing.tile ?? "#b59a5f",
+          scent: ing.scent ?? ing.description,
+          guide: ing.guide ?? ing.description,
+          example: ing.example ?? `拍下你找到的${ing.name}`,
+          question: ing.question ?? `說說看，${ing.name}讓你想到什麼？`,
+          options: (ing.options as string[] | null) ?? ["說說看", "再想想", "問問大人"],
+        },
+      ];
+    });
 }
 
 export const getWeekBundle = cache(
@@ -149,7 +159,7 @@ export const getWeekBundle = cache(
       prisma.theme.count({ where: { weekNumber: { not: null } } }),
       prisma.theme.findFirst({
         where: { weekNumber: current },
-        include: { ingredients: true, books: true },
+        include: themeInclude,
       }),
     ]);
     if (!theme) return null;
@@ -205,7 +215,7 @@ export const getAllWeekIngredients = cache(async (): Promise<DexIngredient[]> =>
   const themes = await prisma.theme.findMany({
     where: { weekNumber: { not: null } },
     orderBy: { weekNumber: "asc" },
-    include: { ingredients: true, books: true },
+    include: themeInclude,
   });
   return themes.flatMap((t) => {
     if (t.weekNumber == null) return [];

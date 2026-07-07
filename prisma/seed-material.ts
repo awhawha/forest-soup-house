@@ -27,7 +27,7 @@ async function main() {
     readFileSync(join(__dirname, "material-copy.json"), "utf8"),
   ) as Record<string, Copy>;
 
-  const rows = await prisma.themeIngredient.findMany();
+  const rows = await prisma.ingredient.findMany();
   let updated = 0;
   const missing: string[] = [];
 
@@ -37,8 +37,8 @@ async function main() {
       missing.push(row.slug);
       continue;
     }
-    await prisma.themeIngredient.update({
-      where: { id: row.id },
+    await prisma.ingredient.update({
+      where: { slug: row.slug },
       data: {
         guide: c.guide,
         example: c.example,

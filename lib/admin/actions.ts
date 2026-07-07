@@ -154,6 +154,47 @@ export async function saveEntity(
   redirect(`/admin/${entity.slug}?saved=1`);
 }
 
+// ---------- 主題包 ↔ 材料庫 關聯 ----------
+
+/** 把材料庫既有材料掛到某主題包（附加在最後）。 */
+export async function attachThemeIngredient(
+  themeSlug: string,
+  formData: FormData,
+): Promise<void> {
+  await requireAdmin();
+  const back = `/admin/themes/${encodeURIComponent(themeSlug)}`;
+  const ingredientSlug = String(formData.get("ingredientSlug") ?? "").trim();
+  if (!ingredientSlug) redirect(back);
+
+  const agg = await prisma.themeIngredient.aggregate({
+    where: { themeSlug },
+    _max: { sortOrder: true },
+  });
+  try {
+    await prisma.themeIngredient.create({
+      data: {
+        themeSlug,
+        ingredientSlug,
+        sortOrder: (agg._max.sortOrder ?? -1) + 1,
+      },
+    });
+  } catch (e) {
+    // 已掛過（unique 重複）等 → 忽略，直接回主題頁
+    if (!(e instanceof Prisma.PrismaClientKnownRequestError)) throw e;
+  }
+  redirect(back);
+}
+
+/** 把某材料從主題包移除（只解除關聯，不動材料庫本身）。 */
+export async function detachThemeIngredient(
+  themeSlug: string,
+  id: number,
+): Promise<void> {
+  await requireAdmin();
+  await prisma.themeIngredient.delete({ where: { id } }).catch(() => {});
+  redirect(`/admin/themes/${encodeURIComponent(themeSlug)}`);
+}
+
 export async function deleteEntity(
   entitySlug: string,
   id: string,

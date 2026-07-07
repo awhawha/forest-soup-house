@@ -159,7 +159,7 @@ const RESIDENTS: ResidentSeed[] = [
 ];
 
 // ── 材料視覺（glyph / 圖鑑底色 / 圓塊漸層 / 香味一句話）──
-// key = ThemeIngredient.slug（跨主題唯一即可；重複 slug 以 themeSlug 區分）
+// key = Ingredient.slug（材料庫全域唯一）
 const ING_VISUALS: Record<
   string,
   { glyph: string; tile: string; gradient: string; scent: string }
@@ -328,10 +328,10 @@ async function main() {
   }
   console.log(`✓ 住戶 ${RESIDENTS.length} 位`);
 
-  // 3. 材料視覺
+  // 3. 材料視覺（材料改成材料庫共用 → 寫進 Ingredient）
   let ingCount = 0;
   for (const [slug, v] of Object.entries(ING_VISUALS)) {
-    const res = await prisma.themeIngredient.updateMany({
+    const res = await prisma.ingredient.updateMany({
       where: { slug },
       data: { glyph: v.glyph, tile: v.tile, gradient: v.gradient, scent: v.scent },
     });

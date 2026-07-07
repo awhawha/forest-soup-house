@@ -129,22 +129,20 @@ export const adminEntities: AdminEntity[] = [
     ],
   },
   {
-    slug: "theme-ingredients",
-    label: "主題材料",
+    slug: "ingredients",
+    label: "材料庫",
     icon: "🌿",
-    model: "themeIngredient",
-    idField: "id",
-    idIsNumber: true,
-    autoId: true,
-    description: "主題包的採集材料。app 用「出門引導／拍照提示／用說的問題＋三選項」帶孩子採集。",
+    model: "ingredient",
+    idField: "slug",
+    description:
+      "跨主題共用的材料庫。一個材料可掛在多個主題包（到「主題包」編輯頁掛上／移除），改材料本身所有用到的主題一起更新。app 用「出門引導／拍照提示／用說的問題＋三選項」帶孩子採集。",
     listFields: [
-      { name: "themeSlug", label: "主題" },
+      { name: "slug", label: "Slug" },
       { name: "name", label: "材料" },
       { name: "locationName", label: "採集地點" },
     ],
     fields: [
-      { name: "themeSlug", label: "所屬主題包", type: "select", required: true, optionsFrom: { model: "theme", value: "slug", label: "title" } },
-      { name: "slug", label: "Slug（材料代稱）", type: "text", required: true, help: "例如 soft-flower，同一主題內不可重複" },
+      { name: "slug", label: "Slug（材料代稱）", type: "text", required: true, readOnlyOnEdit: true, help: "例如 soft-flower，全站唯一，建立後請勿更改" },
       { name: "name", label: "材料名稱", type: "text", required: true },
       { name: "description", label: "材料描述", type: "textarea", required: true, rows: 3 },
       { name: "guide", label: "出門引導", type: "textarea", optional: true, rows: 2, help: "叫孩子在真實世界找什麼、怎麼互動。例：找一朵真的小花，聞一聞——像不像曬過太陽的棉被？" },
@@ -166,7 +164,6 @@ export const adminEntities: AdminEntity[] = [
         rows: 10,
         help: "v1 舊欄位，v2 已改用上方「用說的問題＋選項」，可留空。",
       },
-      sortOrderField,
     ],
   },
   {

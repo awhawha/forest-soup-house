@@ -123,16 +123,16 @@ model Theme {
   books       ThemeBook[]
 }
 
-model ThemeIngredient {
-  id           Int    @id @default(autoincrement())
-  themeSlug    String
-  theme        Theme  @relation(fields: [themeSlug], references: [slug], onDelete: Cascade)
-  slug         String
+// ── 材料庫（跨主題共用的材料本體）──
+// 一個材料可掛在多個主題包；改材料本身 = 所有用到的主題一起變。
+// slug 全域唯一（PotRecipe.ingredientSlugs 本來就這樣對應）。
+model Ingredient {
+  slug         String @id
   name         String
   description  String
   locationSlug String
   locationName String
-  collection   Json // CollectionChallenge（choice / riddle / secret）
+  collection   Json? // CollectionChallenge（choice / riddle / secret）；v1 舊欄位
   // ── 採集視覺（地圖採集袋 / 圖鑑 / 煮湯動畫用）──
   /** 材料圓塊上的單字（花、包、甜⋯） */
   glyph        String?
@@ -153,9 +153,21 @@ model ThemeIngredient {
   question     String?
   /** 三個選項（皆為正解，對話引子）；string[] */
   options      Json?
-  sortOrder    Int    @default(0)
 
-  @@unique([themeSlug, slug])
+  themes ThemeIngredient[]
+}
+
+// ── 主題 ↔ 材料 關聯（多對多）──
+// 純關聯 + 各主題自己的排序。材料內容都在 Ingredient。
+model ThemeIngredient {
+  id             Int        @id @default(autoincrement())
+  themeSlug      String
+  theme          Theme      @relation(fields: [themeSlug], references: [slug], onDelete: Cascade)
+  ingredientSlug String
+  ingredient     Ingredient @relation(fields: [ingredientSlug], references: [slug], onDelete: Cascade)
+  sortOrder      Int        @default(0)
+
+  @@unique([themeSlug, ingredientSlug])
 }
 
 // ── 湯鍋（日常廚房）「找到的食譜」 ──
