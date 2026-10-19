@@ -1,209 +1,60 @@
-# Forest Soup House
+# Forest Soup House 湯湯屋魔法森林
 
-A gentle story world where soup is magic.
+A weekly story-and-play app for kids and grown-ups: hear a forest story, go outside to gather three real ingredients with the camera, then "cook" the week's magic soup together.
 
-Forest Soup House is an interactive story world designed for children and families.  
-It combines storytelling, exploration, and small real-world missions to create a calm and playful learning experience.
+**Live:** https://forest-soup-house.vercel.app (mobile-first; best on a phone)
 
-The project is built as a web experience that can later connect to printable cards and physical play.
+## Screenshots
 
----
+| Onboarding | Today | Story | Forest | Capture | Sticker preview | Cook ritual | Soup pot | Printable |
+|---|---|---|---|---|---|---|---|---|
+| ![Onboarding](docs/screenshots/onboarding.png) | ![Today](docs/screenshots/today.png) | ![Story with narration](docs/screenshots/story.png) | ![Forest](docs/screenshots/forest.png) | ![Capture: photo, album, or say it](docs/screenshots/capture.png) | ![Sticker preview: cutout or original](docs/screenshots/sticker-preview.png) | ![Cook ritual: drag ingredients into the pot](docs/screenshots/cook-ritual.png) | ![Soup pot](docs/screenshots/pot.png) | ![Printable craft sheet](docs/screenshots/print.png) |
 
-# Concept
+## What it does
 
-In the forest, there is a small house where magical soups are made.
+- **Weekly theme** – each week has a story (with narration), a soup, and three ingredients to find.
+- **Gather** – take a photo or pick one from the album (or "say it" instead of going out). The photo is cut out in the browser and the child chooses the sticker or the original.
+- **Cook ritual** – drag the gathered stickers into the pot, then stir in circles to finish the soup.
+- **Forest** – nine playable places (garden, river, post office, magic lab…) with small local activities and a shared pantry.
+- **Printable craft sheet** (`/print`) and a keepsake book tab.
+- **Admin** (`/admin`) – password-protected CMS for themes, ingredients, places, characters and stories.
 
-Each soup carries a feeling, a memory, or a small adventure.
+## Stack
 
-Children explore the world by:
+- Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, CSS-variable design tokens
+- Prisma + Supabase Postgres; deployed on Vercel
+- In-browser background removal with `@imgly/background-removal` (WebGPU when available, CPU fallback)
+- Children's photos stay on the device in IndexedDB; they are never uploaded
 
-- reading stories
-- discovering soup recipes
-- meeting forest friends
-- trying gentle real-world missions
+## My role
 
-The goal is not competition, but curiosity and imagination.
+I designed and built this end to end: concept and story world, UX flows, visual design and design tokens, and the full-stack implementation (front end, data model, admin, deployment).
 
----
+Illustrations and narration audio are AI-generated from my own concepts and art direction.
 
-# Product Structure
+## How it evolved
 
-Forest Soup House is designed as a connected story system.
-Story
-↓
-Soup
-↓
-Mission
-↓
-Character
-↓
-World
+- **v1 (Mar–Apr 2026)** – a storybook website: stories, soup cards, characters, locations, bilingual labels. Brief and UX structure: [`docs/V1_PRODUCT_BRIEF_AND_UX.md`](docs/V1_PRODUCT_BRIEF_AND_UX.md). Original concept notes: [`docs/PRODUCT_CONCEPT.md`](docs/PRODUCT_CONCEPT.md).
+- **v2 (Jul 2026)** – rebuilt as a weekly parent-and-child app with four tabs (onboarding, camera gathering, soup-cooking ritual); content moved to Supabase with an admin.
+- **v3 (Jul 2026)** – the forest: nine playable place overlays, full-screen story listening with synced narration, a shared pantry, and a reusable ingredient library across themes.
+- **Oct 2026** – background-removal sticker preview and drag-into-the-pot cooking.
 
-Stories introduce emotions and events in the forest.
+## AI workflow
 
-Soups represent magical moments or feelings from those stories.
+Built with Claude Code. I owned the product direction, specs, and design; the agent helped implement, and I reviewed and tested every change.
 
-Missions invite children to try small real-world activities inspired by the story.
+## Security notes
 
-Characters guide the experience and appear across stories and missions.
+- All database access is server-side through Prisma (server components and server actions); the browser never talks to the database.
+- Row Level Security is enabled on every table (`prisma/enable-rls.sql`), so Supabase's public Data API can't read or write them.
+- Secrets live only in `.env` (git-ignored); see `.env.example` for the variable names.
 
-The world map provides a sense of place and discovery.
+## Run locally
 
----
-
-# Core Experiences
-
-## Stories
-
-Short illustrated stories introduce the world and characters.
-
-Example themes:
-
-- A Day of the Dancing Soup
-- The Quiet Mushroom Night
-- The Soup That Learned to Sing
-
-Stories gently introduce emotions, nature, and imagination.
-
----
-
-## Soup Cards
-
-Each story unlocks a **Soup Card**.
-
-A soup represents a magical moment in the forest.
-
-Examples:
-
-- Warm Sweet Soup
-- Silly Bubble Soup
-- Flying Friendship Soup
-
-Soup cards may later exist as:
-
-- digital collectibles
-- printable cards
-- physical card sets
-
----
-
-## Little Adventures
-
-Small missions that children can try with a grown-up.
-
-Examples:
-
-- Find something that smells sweet
-- Listen to three different forest sounds
-- Draw your own magical soup
-
-These missions connect the story world with everyday life.
-
----
-
-## Forest Friends
-
-Characters who live in the forest.
-
-Examples:
-
-**Fina the Fox**  
-Curious and thoughtful.
-
-**Poffy the Fire Spirit**  
-Playful and energetic.
-
-**Milo the Squirrel**  
-Careful and kind.
-
-Characters appear across stories, soups, and missions.
-
----
-
-# Website Structure
-Home
-├─ World
-│   └─ Forest locations
-│
-├─ Stories
-│   └─ Story pages
-│
-├─ Forest Friends
-│   └─ Character profiles
-│
-├─ Soup Cards
-│   └─ Soup card details
-│
-└─ Little Adventures
-└─ Missions
-
----
-
-# Tech Stack
-
-- Next.js (App Router)
-- React
-- TypeScript
-- Tailwind CSS
-- Design tokens via CSS variables
-
----
-
-# Design Philosophy
-
-The visual design is inspired by:
-
-- children's picture books
-- calm storybook layouts
-- warm paper textures
-- natural forest colors
-
-Principles:
-
-- calm, readable typography
-- minimal interface noise
-- storytelling first, UI second
-- slow and gentle interactions
-
----
-
-# Design System
-
-The site uses a small token system for visual consistency.
-
-## Surfaces
-paper
-paper-card
-
-## Text
-wood
-wood-muted
-
-## Accent
-moss
-moss-dark
-accent-pull
-
-These tokens create a warm, storybook aesthetic.
-
----
-
-# Future Ideas
-
-Possible expansions for the project:
-
-- printable card packs
-- physical soup card game
-- story audio narration
-- interactive forest map
-- story → soup → mission unlock system
-
----
-
-# Author
-
-Created by **Grace Lee**.
-
-Forest Soup House began as a storytelling world inspired by playing and reading with my daughter.
-
-The project explores how digital stories, physical play, and imagination can connect.
+```bash
+npm install
+cp .env.example .env   # fill in your Supabase Postgres URLs and an admin password
+npm run db:push        # create tables
+npm run db:seed        # load sample content
+npm run dev            # http://localhost:3000
+```
