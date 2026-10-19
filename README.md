@@ -1,4 +1,4 @@
-# Forest Soup House 湯湯屋魔法森林
+# Forest Soup House
 
 A weekly story-and-play app for kids and grown-ups: hear a forest story, go outside to gather three real ingredients with the camera, then "cook" the week's magic soup together.
 
