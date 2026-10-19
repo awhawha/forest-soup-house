@@ -35,6 +35,8 @@ export interface GardenFlower {
   id: number;
   scent: string;
   dry: boolean;
+  /** 孩子拍的去背照片 id（採花時存，收進收藏櫃時一起帶過去） */
+  photo?: string;
 }
 export function getGardenRack(): GardenFlower[] {
   return read<{ rack: GardenFlower[] }>(GARDEN_KEY)?.rack ?? [];

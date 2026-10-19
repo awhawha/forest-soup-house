@@ -5,7 +5,7 @@
  * z-index:15，inset:0 0 86px：蓋住內容、露出底部分頁列，孩子隨時能跳去別分頁。
  * 每個地點各有一個招牌小儀式；能「等一夜／等一天」的地方提供 ⏩ demo 快轉鈕。
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { WeekBundle, WeekCardInfo } from "@/lib/weekly";
 import { foundCount, type WeekProgress } from "@/lib/client/weekProgress";
 import { useSoupState } from "@/lib/client/useSoupState";
@@ -17,9 +17,12 @@ import {
   PO_CHARS, PO_REPLIES, getLetters, setLetters, type Letter,
   TREE_LINES, LAB_SCENTS, LAB_LINES, GROVE_CHARS,
 } from "@/lib/client/places";
-import { serifTC } from "@/components/app/PhoneFrame";
+import { serifTC, STICKER_OUTLINE } from "@/components/app/PhoneFrame";
 import { PhotoCapture } from "@/components/app/PhotoCapture";
 import { PhotoImg } from "@/components/app/PhotoImg";
+import { PhotoCutoutSheet } from "@/components/app/PhotoCutoutSheet";
+import { savePhoto } from "@/lib/client/photoStore";
+import { warmupCutout } from "@/lib/client/removeBg";
 
 export type PlaceKey = "house" | "garden" | "station" | "river" | "shed" | "post" | "lab" | "stone" | "grove";
 
@@ -142,14 +145,20 @@ function Garden({ onClose }: { onClose: () => void }) {
   const [step, setStep] = useState<"idle" | "picking">("idle");
   const [scent, setScent] = useState(GD_SCENTS[0]);
   const [photoId, setPhotoId] = useState<string | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null); // 待去背預覽的採花照
   const [rack, setRack] = useState<GardenFlower[]>(() => getGardenRack());
+
+  // 一進草藥花園就在背景暖機去背模型，等真的採花拍照時已就緒
+  useEffect(() => {
+    warmupCutout();
+  }, []);
 
   const persist = (next: GardenFlower[]) => {
     setRack(next);
     setGardenRack(next);
   };
   const add = () => {
-    persist([...rack, { id: Date.now(), scent, dry: false }]);
+    persist([...rack, { id: Date.now(), scent, dry: false, photo: photoId ?? undefined }]);
     setStep("idle");
     setPhotoId(null);
   };
@@ -157,18 +166,19 @@ function Garden({ onClose }: { onClose: () => void }) {
   const collect = (id: number) => {
     const it = rack.find((r) => r.id === id);
     if (!it) return;
-    Soup.add("flower", { scent: it.scent }); // 寫入共用收藏櫃
+    Soup.add("flower", { scent: it.scent, photo: it.photo }); // 連去背照一起寫入共用收藏櫃
     persist(rack.filter((r) => r.id !== id));
   };
 
-  // 香料收藏櫃：讀共用 SOUP × 第 1 週三樣材料（soup-changed 時自動重讀）
+  // 香料收藏櫃：讀共用 SOUP × 第 1 週三樣材料（soup-changed 時自動重讀）；帶出最近一張去背照
   const pantry = useSoupState(() => {
     const p = Soup.pantry();
     return Soup.WEEKS[1].ingredients.map((i) => {
       const e = p[i.slug];
-      return { ...i, collected: !!e, count: e && e.finds ? e.finds.length : e ? 1 : 0 };
+      const photo = e?.finds ? [...e.finds].reverse().find((f) => f.photo)?.photo : undefined;
+      return { ...i, collected: !!e, count: e && e.finds ? e.finds.length : e ? 1 : 0, photo };
     });
-  }, Soup.WEEKS[1].ingredients.map((i) => ({ ...i, collected: false, count: 0 })));
+  }, Soup.WEEKS[1].ingredients.map((i) => ({ ...i, collected: false, count: 0, photo: undefined as string | undefined })));
   const pantryCount = pantry.filter((i) => i.collected).length;
 
   return (
@@ -221,9 +231,9 @@ function Garden({ onClose }: { onClose: () => void }) {
               })}
             </div>
             <p style={{ fontSize: 12, color: "#8a7659", margin: "16px 0 8px" }}>拍下你採到的花</p>
-            <PhotoCapture onSaved={setPhotoId} style={{ width: "100%", height: 150, display: "block", border: "1px dashed #c9bd9d", borderRadius: 14, background: "rgba(253,246,228,.7)", cursor: "pointer", padding: 0, overflow: "hidden" }}>
+            <PhotoCapture onPicked={setPendingFile} style={{ width: "100%", height: 150, display: "block", border: "1px dashed #c9bd9d", borderRadius: 14, background: "rgba(253,246,228,.7)", cursor: "pointer", padding: 0, overflow: "hidden" }}>
               {photoId ? (
-                <PhotoImg photoId={photoId} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", borderRadius: 14 }} />
+                <PhotoImg photoId={photoId} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", padding: 8, boxSizing: "border-box", filter: STICKER_OUTLINE }} />
               ) : (
                 <span style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 6, color: "#8a7659" }}>
                   <span style={{ fontSize: 24 }}>✿</span>
@@ -249,7 +259,13 @@ function Garden({ onClose }: { onClose: () => void }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
             {rack.map((r) => (
               <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 13, background: r.dry ? "linear-gradient(160deg,#fff6e4,#fbeccb)" : "#fbf5e6", border: "1px solid #ecdcb8", borderRadius: 18, padding: "13px 15px", boxShadow: "0 8px 20px -15px rgba(90,60,30,.4)", animation: "nvIn .4s ease-out" }}>
-                <span style={{ width: 42, height: 42, flexShrink: 0, borderRadius: "50%", background: GD_FLOWER.color, display: "flex", alignItems: "center", justifyContent: "center", ...serifTC, fontWeight: 700, fontSize: 15, color: "#fff", animation: r.dry ? "nvGlowPulse 2.4s ease-in-out infinite" : "none" }}>{GD_FLOWER.glyph}</span>
+                {r.photo ? (
+                  <span style={{ width: 46, height: 46, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", animation: r.dry ? "nvGlowPulse 2.4s ease-in-out infinite" : "none", borderRadius: "50%" }}>
+                    <PhotoImg photoId={r.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", filter: STICKER_OUTLINE }} />
+                  </span>
+                ) : (
+                  <span style={{ width: 42, height: 42, flexShrink: 0, borderRadius: "50%", background: GD_FLOWER.color, display: "flex", alignItems: "center", justifyContent: "center", ...serifTC, fontWeight: 700, fontSize: 15, color: "#fff", animation: r.dry ? "nvGlowPulse 2.4s ease-in-out infinite" : "none" }}>{GD_FLOWER.glyph}</span>
+                )}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ ...serifTC, fontWeight: 700, fontSize: 14.5, margin: 0, color: "#3a2f22" }}>{GD_FLOWER.name}</p>
                   <p style={{ fontSize: 11.5, color: r.dry ? "#c47a3a" : "#7f9068", margin: "2px 0 0", fontWeight: 600 }}>{r.dry ? `曬好了！香味像${r.scent}` : `晾曬中 · 還要 1 天 · ${r.scent}`}</p>
@@ -278,7 +294,13 @@ function Garden({ onClose }: { onClose: () => void }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {pantry.map((i) => (
             <div key={i.slug} style={{ display: "flex", alignItems: "center", gap: 13, background: i.collected ? "#fff" : "#f6f1e4", border: `1px solid ${i.collected ? "#ecdcb8" : "#e4dcc6"}`, borderRadius: 16, padding: "12px 14px" }}>
-              <span style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 11, background: i.tile, opacity: i.collected ? 1 : 0.4, display: "flex", alignItems: "center", justifyContent: "center", ...serifTC, fontWeight: 700, fontSize: 15, color: i.collected ? "#fff" : "rgba(90,70,50,.5)" }}>{i.collected ? i.glyph : "?"}</span>
+              {i.collected && i.photo ? (
+                <span style={{ width: 44, height: 44, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <PhotoImg photoId={i.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", filter: STICKER_OUTLINE }} />
+                </span>
+              ) : (
+                <span style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 11, background: i.tile, opacity: i.collected ? 1 : 0.4, display: "flex", alignItems: "center", justifyContent: "center", ...serifTC, fontWeight: 700, fontSize: 15, color: i.collected ? "#fff" : "rgba(90,70,50,.5)" }}>{i.collected ? i.glyph : "?"}</span>
+              )}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ ...serifTC, fontWeight: 700, fontSize: 14, margin: 0, color: i.collected ? "#3a2f22" : "#a89880" }}>{i.collected ? i.name : "？？？"}</p>
                 <p style={{ fontSize: 11.5, color: i.collected ? "#5b7a3f" : "#a89880", margin: "2px 0 0", fontWeight: 600 }}>{i.collected ? `找到過 ${i.count} 次` : `在${i.place}採得到`}</p>
@@ -291,6 +313,20 @@ function Garden({ onClose }: { onClose: () => void }) {
       </div>
 
       <p style={footNote}>好的湯料，急不得。<br />這裡教的，是照顧一朵花，然後等它。</p>
+
+      {/* 去背預覽：採花照拍完先去背、選去背貼紙或原圖，決定後才存 */}
+      {pendingFile ? (
+        <PhotoCutoutSheet
+          file={pendingFile}
+          label={GD_FLOWER.name}
+          onConfirm={async (blob) => {
+            const id = await savePhoto(blob);
+            setPhotoId(id);
+            setPendingFile(null);
+          }}
+          onCancel={() => setPendingFile(null)}
+        />
+      ) : null}
     </div>
   );
 }

@@ -8,7 +8,10 @@ import { useRef, useState } from "react";
 import { savePhoto } from "@/lib/client/photoStore";
 
 interface PhotoCaptureProps {
-  onSaved: (photoId: string) => void;
+  /** 直接存檔並回傳 photoId（預設流程）。與 onPicked 擇一使用 */
+  onSaved?: (photoId: string) => void;
+  /** 只把原始 File 交出去、不存檔——給呼叫端接去背預覽用。設了就不呼叫 onSaved */
+  onPicked?: (file: File) => void;
   children: React.ReactNode;
   /** 外層樣式（按鈕外觀由呼叫端決定） */
   style?: React.CSSProperties;
@@ -16,16 +19,21 @@ interface PhotoCaptureProps {
   disabled?: boolean;
 }
 
-export function PhotoCapture({ onSaved, children, style, className, disabled }: PhotoCaptureProps) {
+export function PhotoCapture({ onSaved, onPicked, children, style, className, disabled }: PhotoCaptureProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
   const handleFile = async (file: File | undefined) => {
     if (!file) return;
+    if (onPicked) {
+      onPicked(file);
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
     setBusy(true);
     try {
       const id = await savePhoto(file);
-      onSaved(id);
+      onSaved?.(id);
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";

@@ -27,3 +27,10 @@ export function PhoneFrame({ children }: { children: React.ReactNode }) {
 export const serifTC = {
   fontFamily: "var(--font-noto-serif), 'Noto Serif TC', serif",
 } as const;
+
+/**
+ * 去背貼紙白邊：沿主體輪廓描一圈白，外加淡淡落影。
+ * 給 objectFit:contain 的去背 PNG 用（煮湯 token、收藏櫃貼紙共用）。
+ */
+export const STICKER_OUTLINE =
+  "drop-shadow(2px 0 0 #fffbf0) drop-shadow(-2px 0 0 #fffbf0) drop-shadow(0 2px 0 #fffbf0) drop-shadow(0 -2px 0 #fffbf0) drop-shadow(1.4px 1.4px 0 #fffbf0) drop-shadow(-1.4px 1.4px 0 #fffbf0) drop-shadow(1.4px -1.4px 0 #fffbf0) drop-shadow(-1.4px -1.4px 0 #fffbf0) drop-shadow(0 5px 9px rgba(60,40,15,.42))";

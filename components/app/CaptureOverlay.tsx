@@ -8,13 +8,15 @@
  * 調整：新版 Android 相片選擇器對單一 file input 只給相簿，
  * 故點取景框改跳「📷 拍照／🖼 從相簿選」小選單，兩個來源都在。
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { WeekIngredient } from "@/lib/weekly";
 import type { Capture, WeekProgress } from "@/lib/client/weekProgress";
 import { firstUnfound, foundCount } from "@/lib/client/weekProgress";
 import { savePhoto } from "@/lib/client/photoStore";
+import { warmupCutout } from "@/lib/client/removeBg";
 import { serifTC } from "@/components/app/PhoneFrame";
 import { PhotoImg } from "@/components/app/PhotoImg";
+import { PhotoCutoutSheet } from "@/components/app/PhotoCutoutSheet";
 
 interface CaptureOverlayProps {
   material: WeekIngredient;
@@ -39,6 +41,12 @@ export function CaptureOverlay({
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [chooser, setChooser] = useState(false); // 拍照／相簿 選單
+  const [pendingFile, setPendingFile] = useState<File | null>(null); // 待去背預覽的照片
+
+  // 一進採集頁就在背景暖機去背模型，等真的拍照時已就緒
+  useEffect(() => {
+    warmupCutout();
+  }, []);
 
   const captured = progress.found[index];
   const showDone = !!captured && !editing;
@@ -48,12 +56,18 @@ export function CaptureOverlay({
   const allDone = nextIdx === -1;
   const ctaLabel = allDone ? "帶回湯湯屋" : `下一樣 · ${materials[nextIdx]?.name ?? ""}`;
 
-  const handleFile = async (file: File | undefined) => {
+  // 拍完／選完先進去背預覽，讓孩子選去背貼紙或原圖，決定後才存
+  const handleFile = (file: File | undefined) => {
     setChooser(false);
     if (!file) return;
+    setPendingFile(file);
+  };
+
+  const handleCutoutConfirm = async (blob: Blob) => {
+    setPendingFile(null);
     setBusy(true);
     try {
-      const photoId = await savePhoto(file);
+      const photoId = await savePhoto(blob);
       onFound(index, { kind: "photo", photoId, at: Date.now() });
       setEditing(false);
     } finally {
@@ -114,7 +128,7 @@ export function CaptureOverlay({
                 <PhotoImg
                   photoId={captured!.photoId}
                   alt={material.name}
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", padding: 14, boxSizing: "border-box" }}
                   fallback={<span style={{ color: "#b3a37f", fontSize: 14 }}>照片</span>}
                 />
               </div>
@@ -227,6 +241,16 @@ export function CaptureOverlay({
             </div>
           </div>
         </div>
+      ) : null}
+
+      {/* 去背預覽過場 */}
+      {pendingFile ? (
+        <PhotoCutoutSheet
+          file={pendingFile}
+          label={material.name}
+          onConfirm={handleCutoutConfirm}
+          onCancel={() => setPendingFile(null)}
+        />
       ) : null}
     </div>
   );

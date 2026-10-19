@@ -544,6 +544,17 @@
 @keyframes nvIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes nvFade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes nvSheet { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes nvSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+@keyframes nvFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+/* 小知識輪播：8 張字卡各佔 1/8（12.5%）時段淡入淡出。純 opacity 動畫跑在
+   合成器執行緒，去背卡住主執行緒時字卡照樣會換。★ 字卡數量要跟 8 對齊 */
+@keyframes nvTip {
+  0%    { opacity: 0; transform: translateY(6px); }
+  1%    { opacity: 1; transform: translateY(0); }
+  10.5% { opacity: 1; transform: translateY(0); }
+  11.5% { opacity: 0; transform: translateY(-6px); }
+  100%  { opacity: 0; transform: translateY(-6px); }
+}
 @keyframes nvSteam { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: .6; } 100% { transform: translateY(-46px); opacity: 0; } }
 @keyframes nvGlow { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
 @keyframes nvPop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.06); } 100% { transform: scale(1); opacity: 1; } }
