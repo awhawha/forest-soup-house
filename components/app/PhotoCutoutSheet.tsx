@@ -7,7 +7,7 @@
  *
  * 去背失敗（沒抓好／不支援）不擋路：直接退回原圖，孩子照樣完成收集。
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cutoutBlob } from "@/lib/client/removeBg";
 import { serifTC } from "@/components/app/PhoneFrame";
 
@@ -45,9 +45,15 @@ export function PhotoCutoutSheet({ file, label, onConfirm, onCancel }: PhotoCuto
   const [choice, setChoice] = useState<Choice>("cutout");
   const cutoutBlobRef = useRef<Blob | null>(null);
 
-  // 原圖 URL 依 file 建立（避免在 effect 內同步 setState）；換 file／卸載時釋放
-  const originalUrl = useMemo(() => URL.createObjectURL(file), [file]);
-  useEffect(() => () => URL.revokeObjectURL(originalUrl), [originalUrl]);
+  // 原圖 URL：建立與釋放放在同一個 effect，StrictMode 重跑時會重建，不會留下已 revoke 的網址
+  const [originalUrl, setOriginalUrl] = useState<string | null>(null);
+  // 預覽圖載入失敗（例如瀏覽器不支援 HEIC）時改顯示底色佔位，不露出破圖與 alt 文字
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  useEffect(() => {
+    const url = URL.createObjectURL(file);
+    setOriginalUrl(url); // eslint-disable-line react-hooks/set-state-in-effect -- 外部資源（object URL）同步
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
 
   useEffect(() => {
     let cancelled = false;
@@ -129,9 +135,16 @@ export function PhotoCutoutSheet({ file, label, onConfirm, onCancel }: PhotoCuto
             background: showCutout ? CHECKER : "#efe6cf", display: "flex", alignItems: "center", justifyContent: "center",
           }}
         >
-          {shownUrl ? (
+          {shownUrl && failedSrc !== shownUrl ? (
             // eslint-disable-next-line @next/next/no-img-element -- object URL 預覽
-            <img src={shownUrl} alt={label ?? ""} style={{ width: "100%", height: "100%", objectFit: showCutout ? "contain" : "cover", display: "block" }} />
+            <img
+              src={shownUrl}
+              alt={label ?? ""}
+              onError={() => setFailedSrc(shownUrl)}
+              style={{ width: "100%", height: "100%", objectFit: showCutout ? "contain" : "cover", display: "block" }}
+            />
+          ) : shownUrl ? (
+            <span style={{ ...serifTC, fontSize: 14, color: "#b3a37f" }}>照片</span>
           ) : null}
           {status === "working" ? (
             <div style={{ position: "absolute", inset: 0, background: "rgba(251,245,230,.55)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
